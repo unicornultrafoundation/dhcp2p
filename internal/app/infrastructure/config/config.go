@@ -15,9 +15,6 @@ const (
 type AppConfig struct {
 	Port                 int    `mapstructure:"port"`
 	LogLevel             string `mapstructure:"log_level"`
-	Datadir              string `mapstructure:"datadir"`
-	Password             string `mapstructure:"password"`
-	Account              string `mapstructure:"account"`
 	DatabaseURL          string `mapstructure:"database_url"`
 	RedisURL             string `mapstructure:"redis_url"`
 	NonceTTL             int    `mapstructure:"nonce_ttl"`              // in minutes
