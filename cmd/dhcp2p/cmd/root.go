@@ -15,17 +15,13 @@ func RootCmd() *cobra.Command {
 
 	// Add flags
 	cmd.PersistentFlags().StringP(flag.CONFIG_FLAG, flag.CONFIG_FLAG_SHORT, "", "Path to config file or directory")
-	cmd.PersistentFlags().StringP(flag.DATADIR_FLAG, flag.DATA_DIR_FLAG_SHORT, "~/.dhcp2p", "Path to data directory")
 
 	// Bind flags
 	viper.BindPFlag("config", cmd.PersistentFlags().Lookup(flag.CONFIG_FLAG))
-	viper.BindPFlag("datadir", cmd.PersistentFlags().Lookup(flag.DATADIR_FLAG))
 
 	// Add commands
-	cmd.AddCommand(initCmd())
 	cmd.AddCommand(serveCmd())
 	cmd.AddCommand(versionCmd())
-	cmd.AddCommand(accountCmd())
 
 	return cmd
 }

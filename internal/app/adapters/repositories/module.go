@@ -8,7 +8,6 @@ import (
 )
 
 var Module = fx.Options(
-	// ethereum.Module, // Will use later for signing IP allocations
 	postgres.Module,
 	redis.Module,
 	hybrid.Module,
