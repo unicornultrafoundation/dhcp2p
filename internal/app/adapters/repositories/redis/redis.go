@@ -18,6 +18,7 @@ func NewRedisClient(lc fx.Lifecycle, cfg *config.AppConfig) (*redis.Client, erro
 
 	redisClient := redis.NewClient(&redis.Options{
 		Addr:         redisURL,
+		Password:     cfg.RedisPassword,
 		MaxRetries:   cfg.RedisMaxRetries,
 		PoolSize:     cfg.RedisPoolSize,
 		MinIdleConns: cfg.RedisMinIdleConns,

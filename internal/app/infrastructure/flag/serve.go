@@ -9,6 +9,8 @@ const (
 	DATABASE_URL_FLAG_SHORT           = ""
 	REDIS_URL_FLAG                    = "redis-url"
 	REDIS_URL_FLAG_SHORT              = ""
+	REDIS_PASSWORD_FLAG               = "redis-password"
+	REDIS_PASSWORD_FLAG_SHORT         = ""
 	NONCE_TTL_FLAG                    = "nonce-ttl"
 	NONCE_TTL_FLAG_SHORT              = ""
 	NONCE_CLEANER_INTERVAL_FLAG       = "nonce-cleaner-interval"

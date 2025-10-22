@@ -1,0 +1,49 @@
+# Go build artifacts
+*.exe
+*.exe~
+*.dll
+*.so
+*.test
+*.out
+coverage.*
+coverage/
+profile.out
+
+# Binaries
+/dhcp2p
+/cmd/dhcp2p/dhcp2p
+
+# Build directories
+/bin/
+/build/
+/dist/
+
+# Logs
+*.log
+logs/
+
+# Environment files (keep examples)
+.env
+.env.*
+!.env.example
+!.env.prod.example
+
+# OS / Editor files
+.DS_Store
+.vscode/
+.idea/
+
+# Data and runtime
+/data/
+tmp/
+*.pid
+
+# Docker Compose local override
+docker-compose.override.yml
+
+# Local/private config variants
+config/*.local.*
+config/*.secret.*
+config/*.dev.*
+
+

@@ -24,19 +24,25 @@ func WithAuth(authService ports.AuthService) func(next http.Handler) http.Handle
 			signature := r.Header.Get("X-Signature")
 
 			if pubkey == "" || nonce == "" || signature == "" {
-				writeErrorResponse(w, http.StatusBadRequest, errors.ErrMissingHeaders)
+				writeDomainError(w, errors.ErrMissingHeaders)
+				return
+			}
+
+			// Basic header length caps to mitigate abuse
+			if len(pubkey) > 2048 || len(signature) > 2048 || len(nonce) > 512 {
+				writeDomainError(w, errors.ErrMissingHeaders)
 				return
 			}
 
 			pub, err := base64.StdEncoding.DecodeString(pubkey)
 			if err != nil {
-				writeErrorResponse(w, http.StatusBadRequest, errors.ErrInvalidPubkey)
+				writeDomainError(w, errors.ErrInvalidPubkey)
 				return
 			}
 
 			sig, err := base64.StdEncoding.DecodeString(signature)
 			if err != nil {
-				writeErrorResponse(w, http.StatusBadRequest, errors.ErrInvalidSignature)
+				writeDomainError(w, errors.ErrInvalidSignature)
 				return
 			}
 
@@ -46,19 +52,19 @@ func WithAuth(authService ports.AuthService) func(next http.Handler) http.Handle
 				Signature: sig,
 			})
 			if err != nil {
-				writeErrorResponse(w, http.StatusInternalServerError, err)
+				writeDomainError(w, err)
 				return
 			}
 
 			if !bytes.Equal(res.Pubkey, pub) {
-				writeErrorResponse(w, http.StatusBadRequest, errors.ErrPubkeyMismatch)
+				writeDomainError(w, errors.ErrPubkeyMismatch)
 				return
 			}
 
 			// Set peerID to context
 			peerID, err := utils.GetPeerIDFromPubkey(res.Pubkey)
 			if err != nil {
-				writeErrorResponse(w, http.StatusInternalServerError, err)
+				writeDomainError(w, err)
 				return
 			}
 			ctx := context.WithValue(r.Context(), PeerIDContextKey, peerID)

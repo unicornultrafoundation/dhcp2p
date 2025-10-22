@@ -22,6 +22,7 @@ func serveCmd() *cobra.Command {
 	cmd.Flags().StringP(flag.LOG_LEVEL_FLAG, flag.LOG_LEVEL_FLAG_SHORT, "info", "Log level")
 	cmd.Flags().StringP(flag.DATABASE_URL_FLAG, flag.DATABASE_URL_FLAG_SHORT, "", "Database URL")
 	cmd.Flags().StringP(flag.REDIS_URL_FLAG, flag.REDIS_URL_FLAG_SHORT, "", "Redis URL")
+	cmd.Flags().StringP(flag.REDIS_PASSWORD_FLAG, flag.REDIS_PASSWORD_FLAG_SHORT, "", "Redis Password")
 	cmd.Flags().IntP(flag.NONCE_TTL_FLAG, flag.NONCE_TTL_FLAG_SHORT, 5, "Nonce TTL")                                        // in minutes
 	cmd.Flags().IntP(flag.NONCE_CLEANER_INTERVAL_FLAG, flag.NONCE_CLEANER_INTERVAL_FLAG_SHORT, 5, "Nonce Cleaner Interval") // in minutes
 	cmd.Flags().IntP(flag.LEASE_TTL_FLAG, flag.LEASE_TTL_FLAG_SHORT, 120, "Lease TTL")                                      // in minutes
@@ -37,6 +38,7 @@ func serveCmd() *cobra.Command {
 	viper.BindPFlag("log", cmd.Flags().Lookup(flag.LOG_LEVEL_FLAG))
 	viper.BindPFlag("database_url", cmd.Flags().Lookup(flag.DATABASE_URL_FLAG))
 	viper.BindPFlag("redis_url", cmd.Flags().Lookup(flag.REDIS_URL_FLAG))
+	viper.BindPFlag("redis_password", cmd.Flags().Lookup(flag.REDIS_PASSWORD_FLAG))
 	viper.BindPFlag("nonce_ttl", cmd.Flags().Lookup(flag.NONCE_TTL_FLAG))
 	viper.BindPFlag("nonce_cleaner_interval", cmd.Flags().Lookup(flag.NONCE_CLEANER_INTERVAL_FLAG))
 	viper.BindPFlag("lease_ttl", cmd.Flags().Lookup(flag.LEASE_TTL_FLAG))

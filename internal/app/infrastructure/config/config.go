@@ -17,6 +17,7 @@ type AppConfig struct {
 	LogLevel             string `mapstructure:"log_level"`
 	DatabaseURL          string `mapstructure:"database_url"`
 	RedisURL             string `mapstructure:"redis_url"`
+	RedisPassword        string `mapstructure:"redis_password"`
 	NonceTTL             int    `mapstructure:"nonce_ttl"`              // in minutes
 	NonceCleanerInterval int    `mapstructure:"nonce_cleaner_interval"` // in minutes
 	LeaseTTL             int    `mapstructure:"lease_ttl"`              // in minutes

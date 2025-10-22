@@ -19,9 +19,18 @@ func NewAuthHandler(authService ports.AuthService) *AuthHandler {
 
 func (h *AuthHandler) RequestAuth(w http.ResponseWriter, r *http.Request) {
 	pubkey := r.Header.Get("X-Pubkey")
+	if pubkey == "" {
+		writeDomainError(w, errors.ErrMissingPubkey)
+		return
+	}
+	if len(pubkey) > 2048 {
+		writeDomainError(w, errors.ErrInvalidPubkey)
+		return
+	}
+
 	pub, err := base64.StdEncoding.DecodeString(pubkey)
 	if err != nil {
-		writeErrorResponse(w, http.StatusBadRequest, errors.ErrInvalidPubkey)
+		writeDomainError(w, errors.ErrInvalidPubkey)
 		return
 	}
 
@@ -29,7 +38,7 @@ func (h *AuthHandler) RequestAuth(w http.ResponseWriter, r *http.Request) {
 		Pubkey: pub,
 	})
 	if err != nil {
-		writeErrorResponse(w, http.StatusInternalServerError, err)
+		writeDomainError(w, err)
 		return
 	}
 

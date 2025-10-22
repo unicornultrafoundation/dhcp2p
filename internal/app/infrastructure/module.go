@@ -1,4 +1,4 @@
-package infastructure
+package infrastructure
 
 import (
 	"github.com/duchuongnguyen/dhcp2p/internal/app/infrastructure/config"

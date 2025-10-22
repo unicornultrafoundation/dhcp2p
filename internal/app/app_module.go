@@ -4,7 +4,7 @@ import (
 	"github.com/duchuongnguyen/dhcp2p/internal/app/adapters"
 	"github.com/duchuongnguyen/dhcp2p/internal/app/application"
 	"github.com/duchuongnguyen/dhcp2p/internal/app/domain/ports"
-	infastructure "github.com/duchuongnguyen/dhcp2p/internal/app/infrastructure"
+	infrastructure "github.com/duchuongnguyen/dhcp2p/internal/app/infrastructure"
 	"github.com/duchuongnguyen/dhcp2p/internal/app/infrastructure/server"
 	"go.uber.org/fx"
 )
@@ -22,7 +22,7 @@ func NewApp() *fx.App {
 		// Add modules
 		adapters.Module,
 		application.Module,
-		infastructure.Module,
+		infrastructure.Module,
 
 		// Invoke the servers
 		fx.Invoke(func(server *server.HTTPServer) {}),

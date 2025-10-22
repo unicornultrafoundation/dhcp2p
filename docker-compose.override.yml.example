@@ -1,0 +1,117 @@
+# Docker Compose Override Example
+# This file shows how to customize the default docker-compose.yml
+# Copy this file to docker-compose.override.yml and modify as needed
+
+version: '3.8'
+
+services:
+  # Override PostgreSQL configuration
+  postgres:
+    ports:
+      - "5433:5432"  # Use different external port
+    environment:
+      POSTGRES_DB: dhcp2p_dev
+      POSTGRES_USER: dhcp2p_dev
+      POSTGRES_PASSWORD: dev_password
+    volumes:
+      - ./dev-data/postgres:/var/lib/postgresql/data  # Local data directory
+
+  # Override Redis configuration
+  redis:
+    ports:
+      - "6380:6379"  # Use different external port
+    command: redis-server --appendonly yes --requirepass dev_redis_password
+    volumes:
+      - ./dev-data/redis:/data  # Local data directory
+
+  # Override DHCP2P application
+  dhcp2p:
+    environment:
+      # Use different ports for external access
+      DATABASE_URL: postgres://dhcp2p_dev:dev_password@postgres:5432/dhcp2p_dev?sslmode=disable
+      # If Redis auth is enabled, use the redis:// URL with credentials:
+      # REDIS_URL: redis://:dev_redis_password@redis:6379
+      # Otherwise (default local dev without auth) use address-only format:
+      REDIS_URL: redis:6379
+      
+      # Development-specific settings
+      LOG_LEVEL: debug
+      PORT: 8088
+      
+      # Keystore configuration removed - no longer needed
+      # PASSWORD: dev_keystore_password
+      # ACCOUNT: 0x1234567890123456789012345678901234567890
+    volumes:
+      # Mount local data directory
+      - ./dev-data:/data:rw
+      # Mount local config
+      - ./dev-config:/config:ro
+      # Mount source code for development (if needed)
+      - ./cmd:/app/cmd:ro
+      - ./internal:/app/internal:ro
+    ports:
+      - "8089:8088"  # Use different external port
+    command: ["dhcp2p", "serve", "--log-level=debug"]
+
+  # Add development tools
+  postgres-admin:
+    image: dpage/pgadmin4
+    container_name: dhcp2p-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@dhcp2p.local
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    networks:
+      - dhcp2p-network
+
+  # Add Redis admin
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: dhcp2p-redis-commander
+    environment:
+      REDIS_HOSTS: local:redis:6379:0:dev_redis_password
+    ports:
+      - "8081:8081"
+    depends_on:
+      - redis
+    networks:
+      - dhcp2p-network
+
+# Additional volumes for development
+volumes:
+  dev_postgres_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./dev-data/postgres
+  dev_redis_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./dev-data/redis
+
+# Example of using external services
+# Uncomment to use external PostgreSQL and Redis
+# services:
+#   dhcp2p-migrate:
+#     environment:
+#       DATABASE_URL: postgres://user:password@external-postgres:5432/dhcp2p?sslmode=require
+#   
+#   dhcp2p:
+#     environment:
+#       DATABASE_URL: postgres://user:password@external-postgres:5432/dhcp2p?sslmode=require
+#       REDIS_URL: redis://user:password@external-redis:6379
+#     depends_on: []  # Remove dependencies on local services
+#
+#   # Disable local services
+#   postgres:
+#     profiles:
+#       - disabled
+#   redis:
+#     profiles:
+#       - disabled
