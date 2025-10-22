@@ -1,0 +1,26 @@
+package flag
+
+const (
+	PORT_FLAG                         = "port"
+	PORT_FLAG_SHORT                   = "p"
+	LOG_LEVEL_FLAG                    = "log-level"
+	LOG_LEVEL_FLAG_SHORT              = "l"
+	PASSWORD_FLAG                     = "password"
+	PASSWORD_FLAG_SHORT               = ""
+	ACCOUNT_FLAG                      = "account"
+	ACCOUNT_FLAG_SHORT                = "a"
+	DATABASE_URL_FLAG                 = "database-url"
+	DATABASE_URL_FLAG_SHORT           = ""
+	REDIS_URL_FLAG                    = "redis-url"
+	REDIS_URL_FLAG_SHORT              = ""
+	NONCE_TTL_FLAG                    = "nonce-ttl"
+	NONCE_TTL_FLAG_SHORT              = ""
+	NONCE_CLEANER_INTERVAL_FLAG       = "nonce-cleaner-interval"
+	NONCE_CLEANER_INTERVAL_FLAG_SHORT = ""
+	LEASE_TTL_FLAG                    = "lease-ttl"
+	LEASE_TTL_FLAG_SHORT              = ""
+	MAX_LEASE_RETRIES_FLAG            = "max-lease-retries"
+	MAX_LEASE_RETRIES_FLAG_SHORT      = ""
+	LEASE_RETRY_DELAY_FLAG            = "lease-retry-delay"
+	LEASE_RETRY_DELAY_FLAG_SHORT      = ""
+)

@@ -1,0 +1,20 @@
+package http
+
+import "github.com/duchuongnguyen/dhcp2p/internal/app/domain/models"
+
+type AuthResponse struct {
+	Pubkey string `json:"pubkey"`
+	Nonce  string `json:"nonce"`
+}
+
+type AllocateRequestedIPRequest struct {
+	IP string `json:"ip"`
+}
+
+type AllocateRequestedIPResponse struct {
+	Lease *models.Lease `json:"lease"`
+}
+
+type AllocateDynamicIPResponse struct {
+	Lease *models.Lease `json:"lease,omitempty"`
+}

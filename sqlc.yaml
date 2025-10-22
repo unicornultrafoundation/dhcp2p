@@ -1,0 +1,10 @@
+version: "2"
+sql:
+  - engine: "postgresql"
+    schema: "./internal/app/infrastructure/migrations"  # Atlas migrations folder
+    queries: "./internal/app/adapters/repositories/postgres/queries.sql"
+    gen:
+      go:
+        package: "db"
+        out: "./internal/app/adapters/repositories/postgres/db"
+        sql_package: "pgx/v5"
