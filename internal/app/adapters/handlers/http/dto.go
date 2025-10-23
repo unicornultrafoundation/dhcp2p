@@ -18,3 +18,21 @@ type AllocateRequestedIPResponse struct {
 type AllocateDynamicIPResponse struct {
 	Lease *models.Lease `json:"lease,omitempty"`
 }
+
+// Request data structures for type safety
+type AuthRequestData struct {
+	Pubkey []byte
+}
+
+type LeaseRequestData struct {
+	PeerID string
+}
+
+type TokenIDRequestData struct {
+	PeerID  string
+	TokenID int64
+}
+
+type PeerIDRequestData struct {
+	PeerID string
+}

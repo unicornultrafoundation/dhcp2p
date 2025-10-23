@@ -1,10 +1,10 @@
 package http
 
 import (
+	"context"
 	"encoding/base64"
 	"net/http"
 
-	"github.com/duchuongnguyen/dhcp2p/internal/app/domain/errors"
 	"github.com/duchuongnguyen/dhcp2p/internal/app/domain/models"
 	"github.com/duchuongnguyen/dhcp2p/internal/app/domain/ports"
 )
@@ -18,34 +18,29 @@ func NewAuthHandler(authService ports.AuthService) *AuthHandler {
 }
 
 func (h *AuthHandler) RequestAuth(w http.ResponseWriter, r *http.Request) {
-	pubkey := r.Header.Get("X-Pubkey")
-	if pubkey == "" {
-		writeDomainError(w, errors.ErrMissingPubkey)
-		return
-	}
-	if len(pubkey) > 2048 {
-		writeDomainError(w, errors.ErrInvalidPubkey)
-		return
-	}
+	sc := &ServiceCall{Handler: w, Request: r}
+	sc.ExecuteWithValidation(
+		h.handleAuthRequest,
+		ValidateAuthRequest,
+	)
+}
 
-	pub, err := base64.StdEncoding.DecodeString(pubkey)
-	if err != nil {
-		writeDomainError(w, errors.ErrInvalidPubkey)
-		return
-	}
+// handleAuthRequest is the business logic handler for auth requests
+func (h *AuthHandler) handleAuthRequest(ctx context.Context, req interface{}) (interface{}, error) {
+	authReq := req.(*AuthRequestData)
 
-	nonce, err := h.authService.RequestAuth(r.Context(), &models.AuthRequest{
-		Pubkey: pub,
+	nonce, err := h.authService.RequestAuth(ctx, &models.AuthRequest{
+		Pubkey: authReq.Pubkey,
 	})
 	if err != nil {
-		writeDomainError(w, err)
-		return
+		return nil, err
 	}
 
-	res := &AuthResponse{
-		Pubkey: pubkey,
+	// Encode pubkey back to base64 for response
+	pubkeyStr := base64.StdEncoding.EncodeToString(authReq.Pubkey)
+
+	return &AuthResponse{
+		Pubkey: pubkeyStr,
 		Nonce:  nonce.NonceID,
-	}
-
-	writeResponse(w, http.StatusOK, res)
+	}, nil
 }

@@ -6,6 +6,8 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"go.uber.org/zap"
+
+	httpMiddleware "github.com/duchuongnguyen/dhcp2p/internal/app/adapters/handlers/http/middleware"
 )
 
 type Router struct {
@@ -14,9 +16,15 @@ type Router struct {
 
 func NewHTTPRouter(logger *zap.Logger, authHandler *AuthHandler, leaseHandler *LeaseHandler, healthHandler *HealthHandler) *Router {
 	r := chi.NewRouter()
+
+	// Apply security middleware to all routes
+	r.Use(httpMiddleware.CombinedSecurityMiddleware())
+
+	// Apply standard middleware
 	r.Use(middleware.RequestLogger(&middleware.DefaultLogFormatter{Logger: zap.NewStdLog(logger), NoColor: false}))
 	r.Use(middleware.Recoverer)                 // recover from panics
 	r.Use(middleware.Timeout(60 * time.Second)) // set timeout
+	r.Use(middleware.Throttle(1000))            // limit the number of requests per second to 1000
 
 	// Health check routes (no authentication required)
 	r.Get("/health", healthHandler.Health)
@@ -29,7 +37,7 @@ func NewHTTPRouter(logger *zap.Logger, authHandler *AuthHandler, leaseHandler *L
 	r.Group(func(pr chi.Router) {
 		// Authentication middleware
 		pr.Use(
-			WithAuth(authHandler.authService),
+			httpMiddleware.WithAuth(authHandler.authService),
 		)
 
 		// Lease routes

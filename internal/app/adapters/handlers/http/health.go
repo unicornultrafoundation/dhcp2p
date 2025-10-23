@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/duchuongnguyen/dhcp2p/internal/app/adapters/handlers/http/utils"
 	"github.com/duchuongnguyen/dhcp2p/internal/app/domain/errors"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/redis/go-redis/v9"
@@ -21,13 +22,13 @@ func NewHealthHandler(db *pgxpool.Pool, cache *redis.Client) *HealthHandler {
 
 // Health is a lightweight liveness check
 func (h *HealthHandler) Health(w http.ResponseWriter, r *http.Request) {
-	writeResponse(w, http.StatusOK, map[string]string{"status": "ok"})
+	utils.WriteResponse(w, http.StatusOK, map[string]string{"status": "ok"})
 }
 
 // Readiness verifies dependencies (DB and Cache)
 func (h *HealthHandler) Readiness(w http.ResponseWriter, r *http.Request) {
 	if h.db == nil || h.cache == nil {
-		writeErrorResponse(w, http.StatusServiceUnavailable, errors.ErrMissingDependencies)
+		utils.WriteErrorResponse(w, http.StatusServiceUnavailable, errors.ErrMissingDependencies)
 		return
 	}
 
@@ -36,15 +37,17 @@ func (h *HealthHandler) Readiness(w http.ResponseWriter, r *http.Request) {
 
 	// Check DB
 	if err := h.db.Ping(ctx); err != nil {
-		writeErrorResponse(w, http.StatusServiceUnavailable, err)
+		utils.WriteErrorResponse(w, http.StatusServiceUnavailable, err)
 		return
 	}
 
 	// Check Cache
 	if err := h.cache.Ping(ctx).Err(); err != nil {
-		writeErrorResponse(w, http.StatusServiceUnavailable, err)
+		utils.WriteErrorResponse(w, http.StatusServiceUnavailable, err)
 		return
 	}
 
-	writeResponse(w, http.StatusOK, map[string]string{"status": "ready"})
+	utils.WriteResponse(w, http.StatusOK, map[string]string{"status": "ready"})
 }
+
+
