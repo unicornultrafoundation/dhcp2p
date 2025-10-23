@@ -34,6 +34,12 @@ help:
 	@echo "  docker-down-prod     Stop prod stack and remove volumes"
 	@echo "  migrate-docker       Run DB migrations in container"
 	@echo "  migrate-status       Show migration status"
+	@echo "  test                 Run all tests"
+	@echo "  test-unit            Run unit tests only"
+	@echo "  test-integration     Run integration tests only"
+	@echo "  test-e2e             Run end-to-end tests only"
+	@echo "  test-coverage        Run tests with coverage report"
+	@echo "  test-mocks           Generate mocks for testing"
 
 hash:
 	atlas migrate hash --dir "file://$(MIGRATION_DIR)"
@@ -108,3 +114,62 @@ migrate-docker:
 
 migrate-status:
 	bash scripts/migrate.sh --status -e $(ENV_FILE)
+
+# ---- Testing ----
+.PHONY: test test-unit test-integration test-e2e test-coverage test-mocks test-bench test-load test-contract test-security
+
+test: test-unit test-integration test-e2e
+
+test-unit:
+	go test -v ./tests/unit/...
+
+test-integration:
+	go test -v ./tests/integration/... -tags=integration
+
+test-e2e:
+	go test -v ./tests/e2e/... -tags=e2e
+
+test-benchmark:
+	go test -v -bench=. -benchmem ./tests/benchmark/... -tags=benchmark
+
+test-load:
+	go test -v ./tests/load/... -tags=load
+
+test-contract:
+	go test -v ./tests/contract/... -tags=contract
+
+test-security:
+	go test -v ./tests/unit/security_test.go ./tests/unit/errors_test.go
+
+test-all: test test-security test-benchmark test-contract
+
+test-coverage:
+	go test -coverprofile=coverage.out ./tests/...
+	go tool cover -html=coverage.out -o coverage.html
+	@echo "Coverage report generated: coverage.html"
+
+test-coverage-unit:
+	go test -coverprofile=coverage-unit.out -covermode=atomic ./tests/unit/...
+	go tool cover -html=coverage-unit.out -o coverage-unit.html
+	@echo "Unit test coverage report generated: coverage-unit.html"
+
+test-coverage-integration:
+	go test -coverprofile=coverage-integration.out -covermode=atomic ./tests/integration/... -tags=integration
+	go tool cover -html=coverage-integration.out -o coverage-integration.html
+	@echo "Integration test coverage report generated: coverage-integration.html"
+
+test-race:
+	go test -race -v ./tests/unit/...
+
+test-mocks:
+	cd tests/mocks && go generate
+	@echo "Mock generation completed"
+
+test-fast:
+	go test -short ./tests/unit/...
+
+test-clean:
+	@echo "Cleaning test artifacts..."
+	rm -f coverage*.out coverage*.html
+	rm -f test.log
+	go clean -testcache

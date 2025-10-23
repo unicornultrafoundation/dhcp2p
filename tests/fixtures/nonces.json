@@ -1,0 +1,18 @@
+[
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "peer_id": "test-peer-1",
+    "issued_at": "2024-01-01T00:00:00Z",
+    "expires_at": "2024-01-01T00:05:00Z",
+    "used": false,
+    "used_at": null
+  },
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440001",
+    "peer_id": "test-peer-2",
+    "issued_at": "2024-01-01T00:00:00Z",
+    "expires_at": "2024-01-01T00:05:00Z",
+    "used": true,
+    "used_at": "2024-01-01T00:02:00Z"
+  }
+]

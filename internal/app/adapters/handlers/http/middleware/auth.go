@@ -21,22 +21,22 @@ func WithAuth(authService ports.AuthService) func(next http.Handler) http.Handle
 			// Security middleware handles request validation and sanitization
 			// We only need to validate authentication-specific headers here
 
-			// Validate headers using our new utilities
-			pubkeyResult := validation.ValidateHeader(r, "X-Pubkey", validation.DefaultValidationConfig())
+			// Validate headers using enhanced validation
+			pubkeyResult := validation.ValidateHeader(r, "X-Pubkey", validation.PubkeyValidationConfig())
 			if pubkeyResult.Error != nil {
-				utils.WriteDomainError(w, errors.ErrMissingHeaders)
+				utils.WriteDomainError(w, pubkeyResult.Error)
 				return
 			}
 
-			nonceResult := validation.ValidateHeader(r, "X-Nonce", validation.DefaultValidationConfig())
+			nonceResult := validation.ValidateHeader(r, "X-Nonce", validation.NonceValidationConfig())
 			if nonceResult.Error != nil {
-				utils.WriteDomainError(w, errors.ErrMissingHeaders)
+				utils.WriteDomainError(w, nonceResult.Error)
 				return
 			}
 
-			signatureResult := validation.ValidateHeader(r, "X-Signature", validation.DefaultValidationConfig())
+			signatureResult := validation.ValidateHeader(r, "X-Signature", validation.SignatureValidationConfig())
 			if signatureResult.Error != nil {
-				utils.WriteDomainError(w, errors.ErrMissingHeaders)
+				utils.WriteDomainError(w, signatureResult.Error)
 				return
 			}
 
@@ -85,7 +85,8 @@ func WithAuth(authService ports.AuthService) func(next http.Handler) http.Handle
 			// Set peerID to context
 			peerID, err := applicationUtils.GetPeerIDFromPubkey(res.Pubkey)
 			if err != nil {
-				utils.WriteDomainError(w, err)
+				// Convert libp2p errors to validation errors
+				utils.WriteDomainError(w, errors.ErrInvalidPubkey)
 				return
 			}
 			ctx := context.WithValue(r.Context(), keys.PeerIDContextKey, peerID)

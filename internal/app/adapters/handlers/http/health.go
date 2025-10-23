@@ -2,11 +2,11 @@ package http
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"time"
 
 	"github.com/duchuongnguyen/dhcp2p/internal/app/adapters/handlers/http/utils"
-	"github.com/duchuongnguyen/dhcp2p/internal/app/domain/errors"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/redis/go-redis/v9"
 )
@@ -28,7 +28,13 @@ func (h *HealthHandler) Health(w http.ResponseWriter, r *http.Request) {
 // Readiness verifies dependencies (DB and Cache)
 func (h *HealthHandler) Readiness(w http.ResponseWriter, r *http.Request) {
 	if h.db == nil || h.cache == nil {
-		utils.WriteErrorResponse(w, http.StatusServiceUnavailable, errors.ErrMissingDependencies)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusServiceUnavailable)
+		json.NewEncoder(w).Encode(map[string]string{
+			"type":    "internal_error",
+			"code":    "MISSING_DEPENDENCIES",
+			"message": "Missing required dependencies",
+		})
 		return
 	}
 
@@ -37,17 +43,27 @@ func (h *HealthHandler) Readiness(w http.ResponseWriter, r *http.Request) {
 
 	// Check DB
 	if err := h.db.Ping(ctx); err != nil {
-		utils.WriteErrorResponse(w, http.StatusServiceUnavailable, err)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusServiceUnavailable)
+		json.NewEncoder(w).Encode(map[string]string{
+			"type":    "internal_error",
+			"code":    "DATABASE_CHECK_FAILED",
+			"message": "Database health check failed",
+		})
 		return
 	}
 
 	// Check Cache
 	if err := h.cache.Ping(ctx).Err(); err != nil {
-		utils.WriteErrorResponse(w, http.StatusServiceUnavailable, err)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusServiceUnavailable)
+		json.NewEncoder(w).Encode(map[string]string{
+			"type":    "internal_error",
+			"code":    "REDIS_CHECK_FAILED",
+			"message": "Redis health check failed",
+		})
 		return
 	}
 
 	utils.WriteResponse(w, http.StatusOK, map[string]string{"status": "ready"})
 }
-
-

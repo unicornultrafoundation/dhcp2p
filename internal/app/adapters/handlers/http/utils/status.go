@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"context"
 	"errors"
 	"net/http"
 
@@ -15,7 +16,8 @@ func mapErrorToStatus(err error) int {
 		errors.Is(err, domainErrors.ErrMissingPeerID),
 		errors.Is(err, domainErrors.ErrMissingTokenID),
 		errors.Is(err, domainErrors.ErrInvalidTokenID),
-		errors.Is(err, domainErrors.ErrInvalidPubkey):
+		errors.Is(err, domainErrors.ErrInvalidPubkey),
+		errors.Is(err, context.Canceled):
 		return http.StatusBadRequest
 
 	case errors.Is(err, domainErrors.ErrInvalidSignature):
