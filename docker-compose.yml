@@ -5,7 +5,7 @@ services:
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-dhcp2p}
       POSTGRES_USER: ${POSTGRES_USER:-dhcp2p}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dhcp2p123}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
@@ -48,7 +48,7 @@ services:
         BUILD_VERSION: ${BUILD_VERSION:-dev}
     container_name: dhcp2p-migrate
     environment:
-      DATABASE_URL: ${DATABASE_URL:-postgres://dhcp2p:dhcp2p123@postgres:5432/dhcp2p?sslmode=disable}
+      DATABASE_URL: ${DATABASE_URL}
     depends_on:
       postgres:
         condition: service_healthy
@@ -65,7 +65,7 @@ services:
     container_name: dhcp2p-app
     environment:
       # Database
-      DATABASE_URL: ${DATABASE_URL:-postgres://dhcp2p:dhcp2p123@postgres:5432/dhcp2p?sslmode=disable}
+      DATABASE_URL: ${DATABASE_URL}
 
       # Redis (address only; no scheme)
       REDIS_URL: ${REDIS_URL:-redis:6379}

@@ -187,7 +187,7 @@ docker-compose up dhcp2p
 
 ```bash
 # Database
-DATABASE_URL=postgres://dhcp2p:dhcp2p123@postgres:5432/dhcp2p?sslmode=disable
+DATABASE_URL=postgres://dhcp2p:your_password@postgres:5432/dhcp2p?sslmode=disable
 REDIS_URL=redis://redis:6379
 
 # Application
