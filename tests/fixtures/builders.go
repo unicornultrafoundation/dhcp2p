@@ -3,7 +3,7 @@ package fixtures
 import (
 	"time"
 
-	"github.com/duchuongnguyen/dhcp2p/internal/app/domain/models"
+	"github.com/unicornultrafoundation/dhcp2p/internal/app/domain/models"
 )
 
 // TestBuilder provides factory methods for creating test data
@@ -147,30 +147,28 @@ func (nb *NonceBuilder) Build() *models.Nonce {
 	return nb.nonce
 }
 
-
-
 // TestConfigs provides predefined test configurations
 var TestConfigs = struct {
-	ValidLeaseRanges     map[string][]int64
-	InvalidLeaseRanges   []int64
-	TestPeers            []string
-	TestNonces           []string
-	TimeDurations        map[string]time.Duration
+	ValidLeaseRanges   map[string][]int64
+	InvalidLeaseRanges []int64
+	TestPeers          []string
+	TestNonces         []string
+	TimeDurations      map[string]time.Duration
 }{
 	ValidLeaseRanges: map[string][]int64{
-		"small":   {167772161, 167772162, 167772163},           // 10.0.0.1-10.0.0.3
-		"medium":  {167772161, 184418304},                      // Full DHCP range
-		"large":   generateRange(167772161, 167772180),         // 10.0.0.1-10.0.0.20
+		"small":  {167772161, 167772162, 167772163},   // 10.0.0.1-10.0.0.3
+		"medium": {167772161, 184418304},              // Full DHCP range
+		"large":  generateRange(167772161, 167772180), // 10.0.0.1-10.0.0.20
 	},
 	InvalidLeaseRanges: []int64{
-		0,          // Invalid
-		167772160,  // Network address 10.0.0.0
-		184418305,  // Broadcast address 10.255.255.255
-		-1,         // Negative
+		0,         // Invalid
+		167772160, // Network address 10.0.0.0
+		184418305, // Broadcast address 10.255.255.255
+		-1,        // Negative
 	},
 	TestPeers: []string{
 		"peer-001",
-		"peer-002", 
+		"peer-002",
 		"peer-003",
 		"test-peer-123",
 		"integration-test-peer",
@@ -183,11 +181,11 @@ var TestConfigs = struct {
 		"integration-nonce",
 	},
 	TimeDurations: map[string]time.Duration{
-		"no_expiration":   0,
-		"short":           time.Minute,
-		"medium":          5 * time.Minute,
-		"long":            time.Hour,
-		"very_long":       24 * time.Hour,
+		"no_expiration": 0,
+		"short":         time.Minute,
+		"medium":        5 * time.Minute,
+		"long":          time.Hour,
+		"very_long":     24 * time.Hour,
 	},
 }
 

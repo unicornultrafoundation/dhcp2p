@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/duchuongnguyen/dhcp2p/internal/app/domain/models"
 	"github.com/stretchr/testify/assert"
+	"github.com/unicornultrafoundation/dhcp2p/internal/app/domain/models"
 )
 
 // TestAssertions provides custom assertion helpers
@@ -24,15 +24,15 @@ func (ta *TestAssertions) AssertLeaseEqual(expected, actual *models.Lease) {
 	if expected == nil && actual == nil {
 		return
 	}
-	
+
 	assert.NotNil(ta.t, expected, "expected lease should not be nil")
 	assert.NotNil(ta.t, actual, "actual lease should not be nil")
-	
+
 	if expected != nil && actual != nil {
 		assert.Equal(ta.t, expected.TokenID, actual.TokenID, "TokenID should match")
 		assert.Equal(ta.t, expected.PeerID, actual.PeerID, "PeerID should match")
 		assert.Equal(ta.t, expected.Ttl, actual.Ttl, "TTL should match")
-		
+
 		// Allow small time differences for timestamps
 		assert.WithinDuration(ta.t, expected.CreatedAt, actual.CreatedAt, time.Second, "CreatedAt should be close")
 		assert.WithinDuration(ta.t, expected.ExpiresAt, actual.ExpiresAt, time.Second, "ExpiresAt should be close")
@@ -67,19 +67,19 @@ func (ta *TestAssertions) AssertNonceEqual(expected, actual *models.Nonce) {
 	if expected == nil && actual == nil {
 		return
 	}
-	
+
 	assert.NotNil(ta.t, expected, "expected nonce should not be nil")
 	assert.NotNil(ta.t, actual, "actual nonce should not be nil")
-	
+
 	if expected != nil && actual != nil {
 		assert.Equal(ta.t, expected.ID, actual.ID, "ID should match")
 		assert.Equal(ta.t, expected.PeerID, actual.PeerID, "PeerID should match")
 		assert.Equal(ta.t, expected.Used, actual.Used, "Used flag should match")
-		
+
 		// Allow small time differences for timestamps
 		assert.WithinDuration(ta.t, expected.IssuedAt, actual.IssuedAt, time.Second, "IssuedAt should be close")
 		assert.WithinDuration(ta.t, expected.ExpiresAt, actual.ExpiresAt, time.Second, "ExpiresAt should be close")
-		
+
 		if !expected.UsedAt.IsZero() && !actual.UsedAt.IsZero() {
 			assert.WithinDuration(ta.t, expected.UsedAt, actual.UsedAt, time.Second, "UsedAt should be close")
 		} else {
@@ -95,7 +95,7 @@ func (ta *TestAssertions) AssertNonceValid(nonce *models.Nonce) {
 	assert.NotEmpty(ta.t, nonce.PeerID, "PeerID should not be empty")
 	assert.Greater(ta.t, nonce.IssuedAt, time.Time{}, "IssuedAt should be set")
 	assert.Greater(ta.t, nonce.ExpiresAt, nonce.IssuedAt, "ExpiresAt should be after IssuedAt")
-	
+
 	// If used, UsedAt should be set and after IssuedAt
 	if nonce.Used {
 		assert.NotNil(ta.t, nonce.UsedAt, "UsedAt should be set when nonce is used")
@@ -122,13 +122,13 @@ func (ta *TestAssertions) AssertWithRetry(assertion func() bool, maxRetries int,
 		if assertion() {
 			return
 		}
-		
+
 		if i < maxRetries-1 {
 			delay := time.Duration(i+1) * baseDelay
 			time.Sleep(delay)
 		}
 	}
-	
+
 	assert.Fail(ta.t, fmt.Sprintf("%s after %d retries", message, maxRetries))
 }
 
@@ -136,9 +136,9 @@ func (ta *TestAssertions) AssertWithRetry(assertion func() bool, maxRetries int,
 func (ta *TestAssertions) AssertEventually(ctx context.Context, condition func() bool, timeout time.Duration, message string) {
 	ticker := time.NewTicker(100 * time.Millisecond)
 	defer ticker.Stop()
-	
+
 	timeoutChan := time.After(timeout)
-	
+
 	for {
 		select {
 		case <-ctx.Done():

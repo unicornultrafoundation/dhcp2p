@@ -3,8 +3,8 @@ package hybrid
 import (
 	"context"
 
-	"github.com/duchuongnguyen/dhcp2p/internal/app/domain/models"
-	"github.com/duchuongnguyen/dhcp2p/internal/app/domain/ports"
+	"github.com/unicornultrafoundation/dhcp2p/internal/app/domain/models"
+	"github.com/unicornultrafoundation/dhcp2p/internal/app/domain/ports"
 	"go.uber.org/zap"
 )
 

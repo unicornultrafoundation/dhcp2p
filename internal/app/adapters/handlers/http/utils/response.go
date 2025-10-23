@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/duchuongnguyen/dhcp2p/internal/app/domain/errors"
+	"github.com/unicornultrafoundation/dhcp2p/internal/app/domain/errors"
 )
 
 // ErrorResponse represents a structured error response

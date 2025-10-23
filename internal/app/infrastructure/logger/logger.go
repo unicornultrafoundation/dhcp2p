@@ -3,8 +3,8 @@ package logger
 import (
 	"context"
 
-	"github.com/duchuongnguyen/dhcp2p/internal/app/infrastructure/config"
 	"github.com/mattn/go-colorable"
+	"github.com/unicornultrafoundation/dhcp2p/internal/app/infrastructure/config"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"

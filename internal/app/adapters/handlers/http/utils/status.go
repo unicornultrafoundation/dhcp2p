@@ -5,7 +5,7 @@ import (
 	"errors"
 	"net/http"
 
-	domainErrors "github.com/duchuongnguyen/dhcp2p/internal/app/domain/errors"
+	domainErrors "github.com/unicornultrafoundation/dhcp2p/internal/app/domain/errors"
 )
 
 // mapErrorToStatus returns appropriate HTTP status code for domain errors.

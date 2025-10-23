@@ -1,4 +1,4 @@
-module github.com/duchuongnguyen/dhcp2p
+module github.com/unicornultrafoundation/dhcp2p
 
 go 1.25.0
 

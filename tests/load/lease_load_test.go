@@ -9,29 +9,29 @@ import (
 	"testing"
 	"time"
 
-	"github.com/duchuongnguyen/dhcp2p/internal/app/application/services"
-	"github.com/duchuongnguyen/dhcp2p/internal/app/infrastructure/config"
-	testconfig "github.com/duchuongnguyen/dhcp2p/tests/config"
-	"github.com/duchuongnguyen/dhcp2p/tests/fixtures"
-	"github.com/duchuongnguyen/dhcp2p/tests/mocks"
 	"github.com/stretchr/testify/assert"
+	"github.com/unicornultrafoundation/dhcp2p/internal/app/application/services"
+	"github.com/unicornultrafoundation/dhcp2p/internal/app/infrastructure/config"
+	testconfig "github.com/unicornultrafoundation/dhcp2p/tests/config"
+	"github.com/unicornultrafoundation/dhcp2p/tests/fixtures"
+	"github.com/unicornultrafoundation/dhcp2p/tests/mocks"
 	"go.uber.org/mock/gomock"
 	"go.uber.org/zap"
 )
 
 // LoadTestResults captures metrics from load tests
 type LoadTestResults struct {
-	TotalRequests    int64
-	SuccessfulReqs   int64
-	FailedReqs       int64
-	TotalDuration    time.Duration
-	AvgResponseTime  time.Duration
-	MinResponseTime  time.Duration
-	MaxResponseTime  time.Duration
-	RequestsPerSec   float64
-	ErrorRate        float64
-	ConcurrentUsers  int
-	TestDuration     time.Duration
+	TotalRequests   int64
+	SuccessfulReqs  int64
+	FailedReqs      int64
+	TotalDuration   time.Duration
+	AvgResponseTime time.Duration
+	MinResponseTime time.Duration
+	MaxResponseTime time.Duration
+	RequestsPerSec  float64
+	ErrorRate       float64
+	ConcurrentUsers int
+	TestDuration    time.Duration
 }
 
 func TestLoad_LeaseAllocation_ConcurrentUsers(t *testing.T) {
@@ -69,7 +69,7 @@ func TestLoad_LeaseAllocation_ConcurrentUsers(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			results := runLoadTest(t, tc.concurrentUsers, tc.duration, tc.requestRate)
 			printLoadTestResults(t, tc.name, results)
-			
+
 			// Assert performance thresholds
 			assertLoadTestThresholds(t, results)
 		})
@@ -83,7 +83,7 @@ func runLoadTest(t *testing.T, concurrentUsers int, duration time.Duration, requ
 	// Setup mocks
 	mockRepo := mocks.NewMockLeaseRepository(ctrl)
 	builder := fixtures.NewTestBuilder()
-	
+
 	// Configure mock responses
 	lease := builder.NewLease().Build()
 	mockRepo.EXPECT().GetLeaseByPeerID(gomock.Any(), gomock.Any()).Return(nil, nil).AnyTimes()
@@ -100,7 +100,7 @@ func runLoadTest(t *testing.T, concurrentUsers int, duration time.Duration, requ
 
 	var wg sync.WaitGroup
 	var mu sync.Mutex
-	
+
 	results := &LoadTestResults{
 		ConcurrentUsers: concurrentUsers,
 		TestDuration:    duration,
@@ -122,29 +122,29 @@ func runLoadTest(t *testing.T, concurrentUsers int, duration time.Duration, requ
 		wg.Add(1)
 		go func(workerID int) {
 			defer wg.Done()
-			
+
 			for {
 				select {
 				case <-ctx.Done():
 					return
 				case <-ticker.C:
 					reqStart := time.Now()
-					
+
 					peerID := fmt.Sprintf("load-test-peer-%d", workerID)
 					_, err := service.AllocateIP(ctx, peerID)
-					
+
 					responseTime := time.Since(reqStart)
-					
+
 					mu.Lock()
 					responseTimes = append(responseTimes, responseTime)
 					totalRequests++
-					
+
 					if err != nil {
 						failedReqs++
 					} else {
 						successfulReqs++
 					}
-					
+
 					if responseTime < results.MinResponseTime {
 						results.MinResponseTime = responseTime
 					}
@@ -168,7 +168,7 @@ func runLoadTest(t *testing.T, concurrentUsers int, duration time.Duration, requ
 	results.TotalRequests = totalRequests
 	results.SuccessfulReqs = successfulReqs
 	results.FailedReqs = failedReqs
-	
+
 	if results.TotalRequests > 0 {
 		results.ErrorRate = float64(failedReqs) / float64(totalRequests) * 100
 		results.RequestsPerSec = float64(totalRequests) / results.TotalDuration.Seconds()
@@ -202,17 +202,17 @@ func printLoadTestResults(t *testing.T, testName string, results *LoadTestResult
 
 func assertLoadTestThresholds(t *testing.T, results *LoadTestResults) {
 	// Performance thresholds - adjust based on your requirements
-	maxErrorRate := 5.0 // 5% error rate threshold
+	maxErrorRate := 5.0       // 5% error rate threshold
 	minRequestsPerSec := 45.0 // Adjusted threshold for realistic performance
 	maxAvgResponseTime := 100 * time.Millisecond
 
-	assert.Less(t, results.ErrorRate, maxErrorRate, 
+	assert.Less(t, results.ErrorRate, maxErrorRate,
 		"Error rate should be less than %.2f%%, got %.2f%%", maxErrorRate, results.ErrorRate)
-	
-	assert.GreaterOrEqual(t, results.RequestsPerSec, minRequestsPerSec, 
+
+	assert.GreaterOrEqual(t, results.RequestsPerSec, minRequestsPerSec,
 		"Requests/sec should be greater than or equal to %.2f, got %.2f", minRequestsPerSec, results.RequestsPerSec)
-	
-	assert.Less(t, results.AvgResponseTime, maxAvgResponseTime, 
+
+	assert.Less(t, results.AvgResponseTime, maxAvgResponseTime,
 		"Avg response time should be less than %v, got %v", maxAvgResponseTime, results.AvgResponseTime)
 }
 
@@ -227,9 +227,9 @@ func TestLoad_LeaseOperations_MixedWorkload(t *testing.T) {
 	// Setup mocks
 	mockRepo := mocks.NewMockLeaseRepository(ctrl)
 	builder := fixtures.NewTestBuilder()
-	
+
 	lease := builder.NewLease().Build()
-	
+
 	// Configure mock responses for mixed operations
 	mockRepo.EXPECT().GetLeaseByPeerID(gomock.Any(), gomock.Any()).Return(lease, nil).AnyTimes()
 	mockRepo.EXPECT().RenewLease(gomock.Any(), gomock.Any(), gomock.Any()).Return(lease, nil).AnyTimes()
@@ -242,7 +242,7 @@ func TestLoad_LeaseOperations_MixedWorkload(t *testing.T) {
 
 	concurrentUsers := 30
 	results := runMixedWorkloadTest(ctx, t, service, concurrentUsers)
-	
+
 	t.Logf("Mixed Workload Test - Concurrent Users: %d", concurrentUsers)
 	t.Logf("Operations completed: %d", results.TotalRequests)
 	t.Logf("Success rate: %.2f%%", 100-results.ErrorRate)
@@ -251,7 +251,7 @@ func TestLoad_LeaseOperations_MixedWorkload(t *testing.T) {
 func runMixedWorkloadTest(ctx context.Context, t *testing.T, service *services.LeaseService, concurrentUsers int) *LoadTestResults {
 	var wg sync.WaitGroup
 	var mu sync.Mutex
-	
+
 	results := &LoadTestResults{
 		ConcurrentUsers: concurrentUsers,
 		TestDuration:    testconfig.LoadTestDuration,
@@ -291,17 +291,17 @@ func runMixedWorkloadTest(ctx context.Context, t *testing.T, service *services.L
 	// Start mixed workload workers
 	for i := 0; i < concurrentUsers; i++ {
 		wg.Add(3)
-		
+
 		go func(workerID int) {
 			defer wg.Done()
 			runAllocations(workerID)
 		}(i)
-		
+
 		go func(workerID int) {
 			defer wg.Done()
 			runGets(workerID)
 		}(i)
-		
+
 		go func(workerID int) {
 			defer wg.Done()
 			runRenews(workerID)
@@ -310,7 +310,7 @@ func runMixedWorkloadTest(ctx context.Context, t *testing.T, service *services.L
 
 	wg.Wait()
 	results.TotalDuration = time.Since(startTime)
-	
+
 	if results.TotalRequests > 0 {
 		results.ErrorRate = float64(results.FailedReqs) / float64(results.TotalRequests) * 100
 		results.RequestsPerSec = float64(results.TotalRequests) / results.TotalDuration.Seconds()
@@ -322,15 +322,15 @@ func runMixedWorkloadTest(ctx context.Context, t *testing.T, service *services.L
 func recordResult(responseTime time.Duration, err error, results *LoadTestResults, mu *sync.Mutex) {
 	mu.Lock()
 	defer mu.Unlock()
-	
+
 	results.TotalRequests++
-	
+
 	if err != nil {
 		results.FailedReqs++
 	} else {
 		results.SuccessfulReqs++
 	}
-	
+
 	if responseTime < results.MinResponseTime {
 		results.MinResponseTime = responseTime
 	}

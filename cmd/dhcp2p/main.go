@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/duchuongnguyen/dhcp2p/cmd/dhcp2p/cmd"
+	"github.com/unicornultrafoundation/dhcp2p/cmd/dhcp2p/cmd"
 )
 
 // A version string that can be set with

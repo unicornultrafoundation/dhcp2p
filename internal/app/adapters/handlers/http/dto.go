@@ -1,6 +1,6 @@
 package http
 
-import "github.com/duchuongnguyen/dhcp2p/internal/app/domain/models"
+import "github.com/unicornultrafoundation/dhcp2p/internal/app/domain/models"
 
 type AuthResponse struct {
 	Pubkey string `json:"pubkey"`

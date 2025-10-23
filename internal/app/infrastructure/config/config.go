@@ -3,7 +3,7 @@ package config
 import (
 	"fmt"
 
-	"github.com/duchuongnguyen/dhcp2p/internal/app/infrastructure/flag"
+	"github.com/unicornultrafoundation/dhcp2p/internal/app/infrastructure/flag"
 
 	"github.com/spf13/viper"
 )

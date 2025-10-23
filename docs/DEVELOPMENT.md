@@ -44,7 +44,7 @@ Recommended editors with Go support:
 ### 1. Clone Repository
 
 ```bash
-git clone https://github.com/duchuongnguyen/dhcp2p.git
+git clone https://github.com/unicornultrafoundation/dhcp2p.git
 cd dhcp2p
 ```
 

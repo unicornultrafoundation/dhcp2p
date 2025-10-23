@@ -3,7 +3,7 @@ package ports
 import (
 	"context"
 
-	"github.com/duchuongnguyen/dhcp2p/internal/app/domain/models"
+	"github.com/unicornultrafoundation/dhcp2p/internal/app/domain/models"
 )
 
 type LeaseService interface {

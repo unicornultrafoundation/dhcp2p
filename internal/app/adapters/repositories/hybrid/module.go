@@ -1,9 +1,9 @@
 package hybrid
 
 import (
-	"github.com/duchuongnguyen/dhcp2p/internal/app/adapters/repositories/postgres"
-	"github.com/duchuongnguyen/dhcp2p/internal/app/adapters/repositories/redis"
-	"github.com/duchuongnguyen/dhcp2p/internal/app/domain/ports"
+	"github.com/unicornultrafoundation/dhcp2p/internal/app/adapters/repositories/postgres"
+	"github.com/unicornultrafoundation/dhcp2p/internal/app/adapters/repositories/redis"
+	"github.com/unicornultrafoundation/dhcp2p/internal/app/domain/ports"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 )

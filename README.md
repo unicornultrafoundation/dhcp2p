@@ -1,6 +1,6 @@
 # DHCP2P
 
-[![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/duchuongnguyen/dhcp2p)
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/unicornultrafoundation/dhcp2p)
 [![Go Version](https://img.shields.io/badge/go-1.25+-blue)](https://golang.org/)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Coverage](https://img.shields.io/badge/coverage-80%25-yellow)](tests/)
@@ -39,7 +39,7 @@ A decentralized IP lease management service that provides token-based IP allocat
 
 ```bash
 # Clone the repository
-git clone https://github.com/duchuongnguyen/dhcp2p.git
+git clone https://github.com/unicornultrafoundation/dhcp2p.git
 cd dhcp2p
 
 # Start the application stack
@@ -172,8 +172,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🆘 Support
 
 - 📖 Check the [documentation](docs/)
-- 🐛 Report issues on [GitHub Issues](https://github.com/duchuongnguyen/dhcp2p/issues)
-- 💬 Join discussions in [GitHub Discussions](https://github.com/duchuongnguyen/dhcp2p/discussions)
+- 🐛 Report issues on [GitHub Issues](https://github.com/unicornultrafoundation/dhcp2p/issues)
+- 💬 Join discussions in [GitHub Discussions](https://github.com/unicornultrafoundation/dhcp2p/discussions)
 
 ## 🔗 Related Projects
 

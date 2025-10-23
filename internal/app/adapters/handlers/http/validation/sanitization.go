@@ -7,8 +7,8 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/duchuongnguyen/dhcp2p/internal/app/domain/errors"
 	"github.com/go-chi/chi/v5"
+	"github.com/unicornultrafoundation/dhcp2p/internal/app/domain/errors"
 )
 
 // SanitizationConfig holds configuration for input sanitization

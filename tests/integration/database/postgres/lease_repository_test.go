@@ -8,10 +8,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/duchuongnguyen/dhcp2p/internal/app/adapters/repositories/postgres"
-	"github.com/duchuongnguyen/dhcp2p/internal/app/domain/models"
-	"github.com/duchuongnguyen/dhcp2p/internal/app/infrastructure/config"
-	"github.com/duchuongnguyen/dhcp2p/tests/helpers"
 	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/stretchr/testify/assert"
@@ -19,6 +15,10 @@ import (
 	"github.com/testcontainers/testcontainers-go"
 	postgresModule "github.com/testcontainers/testcontainers-go/modules/postgres"
 	"github.com/testcontainers/testcontainers-go/wait"
+	"github.com/unicornultrafoundation/dhcp2p/internal/app/adapters/repositories/postgres"
+	"github.com/unicornultrafoundation/dhcp2p/internal/app/domain/models"
+	"github.com/unicornultrafoundation/dhcp2p/internal/app/infrastructure/config"
+	"github.com/unicornultrafoundation/dhcp2p/tests/helpers"
 )
 
 func TestLeaseRepository_Integration(t *testing.T) {

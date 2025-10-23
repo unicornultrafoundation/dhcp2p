@@ -1,9 +1,9 @@
 package infrastructure
 
 import (
-	"github.com/duchuongnguyen/dhcp2p/internal/app/infrastructure/config"
-	"github.com/duchuongnguyen/dhcp2p/internal/app/infrastructure/logger"
-	"github.com/duchuongnguyen/dhcp2p/internal/app/infrastructure/server"
+	"github.com/unicornultrafoundation/dhcp2p/internal/app/infrastructure/config"
+	"github.com/unicornultrafoundation/dhcp2p/internal/app/infrastructure/logger"
+	"github.com/unicornultrafoundation/dhcp2p/internal/app/infrastructure/server"
 	"go.uber.org/fx"
 )
 

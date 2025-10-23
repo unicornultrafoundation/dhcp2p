@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/duchuongnguyen/dhcp2p/internal/app/domain/models"
 	"github.com/stretchr/testify/assert"
+	"github.com/unicornultrafoundation/dhcp2p/internal/app/domain/models"
 )
 
 func TestLease_Properties(t *testing.T) {

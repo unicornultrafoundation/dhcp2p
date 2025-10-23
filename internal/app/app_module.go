@@ -1,11 +1,11 @@
 package app
 
 import (
-	"github.com/duchuongnguyen/dhcp2p/internal/app/adapters"
-	"github.com/duchuongnguyen/dhcp2p/internal/app/application"
-	"github.com/duchuongnguyen/dhcp2p/internal/app/domain/ports"
-	infrastructure "github.com/duchuongnguyen/dhcp2p/internal/app/infrastructure"
-	"github.com/duchuongnguyen/dhcp2p/internal/app/infrastructure/server"
+	"github.com/unicornultrafoundation/dhcp2p/internal/app/adapters"
+	"github.com/unicornultrafoundation/dhcp2p/internal/app/application"
+	"github.com/unicornultrafoundation/dhcp2p/internal/app/domain/ports"
+	infrastructure "github.com/unicornultrafoundation/dhcp2p/internal/app/infrastructure"
+	"github.com/unicornultrafoundation/dhcp2p/internal/app/infrastructure/server"
 	"go.uber.org/fx"
 )
 

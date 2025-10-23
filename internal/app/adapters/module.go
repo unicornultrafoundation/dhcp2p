@@ -1,8 +1,8 @@
 package adapters
 
 import (
-	"github.com/duchuongnguyen/dhcp2p/internal/app/adapters/handlers"
-	"github.com/duchuongnguyen/dhcp2p/internal/app/adapters/repositories"
+	"github.com/unicornultrafoundation/dhcp2p/internal/app/adapters/handlers"
+	"github.com/unicornultrafoundation/dhcp2p/internal/app/adapters/repositories"
 	"go.uber.org/fx"
 )
 

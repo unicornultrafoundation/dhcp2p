@@ -13,7 +13,7 @@ import (
 	context "context"
 	reflect "reflect"
 
-	models "github.com/duchuongnguyen/dhcp2p/internal/app/domain/models"
+	models "github.com/unicornultrafoundation/dhcp2p/internal/app/domain/models"
 	gomock "go.uber.org/mock/gomock"
 )
 

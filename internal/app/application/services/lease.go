@@ -6,9 +6,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/duchuongnguyen/dhcp2p/internal/app/domain/models"
-	"github.com/duchuongnguyen/dhcp2p/internal/app/domain/ports"
-	"github.com/duchuongnguyen/dhcp2p/internal/app/infrastructure/config"
+	"github.com/unicornultrafoundation/dhcp2p/internal/app/domain/models"
+	"github.com/unicornultrafoundation/dhcp2p/internal/app/domain/ports"
+	"github.com/unicornultrafoundation/dhcp2p/internal/app/infrastructure/config"
 	"go.uber.org/zap"
 )
 

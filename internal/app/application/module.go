@@ -1,8 +1,8 @@
 package application
 
 import (
-	"github.com/duchuongnguyen/dhcp2p/internal/app/application/jobs"
-	"github.com/duchuongnguyen/dhcp2p/internal/app/application/services"
+	"github.com/unicornultrafoundation/dhcp2p/internal/app/application/jobs"
+	"github.com/unicornultrafoundation/dhcp2p/internal/app/application/services"
 	"go.uber.org/fx"
 )
 

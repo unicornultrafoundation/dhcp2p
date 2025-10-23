@@ -6,8 +6,8 @@ import (
 	"net"
 	"net/http"
 
-	handlers "github.com/duchuongnguyen/dhcp2p/internal/app/adapters/handlers/http"
-	"github.com/duchuongnguyen/dhcp2p/internal/app/infrastructure/config"
+	handlers "github.com/unicornultrafoundation/dhcp2p/internal/app/adapters/handlers/http"
+	"github.com/unicornultrafoundation/dhcp2p/internal/app/infrastructure/config"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 )

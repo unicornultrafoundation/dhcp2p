@@ -4,9 +4,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/duchuongnguyen/dhcp2p/internal/app/adapters/handlers/http/utils"
-	"github.com/duchuongnguyen/dhcp2p/internal/app/domain/errors"
 	"github.com/stretchr/testify/assert"
+	"github.com/unicornultrafoundation/dhcp2p/internal/app/adapters/handlers/http/utils"
+	"github.com/unicornultrafoundation/dhcp2p/internal/app/domain/errors"
 )
 
 func TestWriteDomainError(t *testing.T) {

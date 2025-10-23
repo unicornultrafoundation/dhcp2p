@@ -7,7 +7,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"go.uber.org/zap"
 
-	httpMiddleware "github.com/duchuongnguyen/dhcp2p/internal/app/adapters/handlers/http/middleware"
+	httpMiddleware "github.com/unicornultrafoundation/dhcp2p/internal/app/adapters/handlers/http/middleware"
 )
 
 type Router struct {

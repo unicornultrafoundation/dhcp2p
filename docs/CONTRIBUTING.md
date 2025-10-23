@@ -58,7 +58,7 @@ Before contributing, ensure you have:
 
 3. **Add upstream remote**:
    ```bash
-   git remote add upstream https://github.com/duchuongnguyen/dhcp2p.git
+   git remote add upstream https://github.com/unicornultrafoundation/dhcp2p.git
    ```
 
 4. **Verify setup**:
@@ -67,8 +67,8 @@ Before contributing, ensure you have:
    # Should show:
    # origin    https://github.com/YOUR_USERNAME/dhcp2p.git (fetch)
    # origin    https://github.com/YOUR_USERNAME/dhcp2p.git (push)
-   # upstream  https://github.com/duchuongnguyen/dhcp2p.git (fetch)
-   # upstream  https://github.com/duchuongnguyen/dhcp2p.git (push)
+   # upstream  https://github.com/unicornultrafoundation/dhcp2p.git (fetch)
+   # upstream  https://github.com/unicornultrafoundation/dhcp2p.git (push)
    ```
 
 ## Development Setup

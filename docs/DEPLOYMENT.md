@@ -142,7 +142,7 @@ LEASE_RETRY_DELAY=500
 
 ```bash
 # Clone repository
-git clone https://github.com/duchuongnguyen/dhcp2p.git
+git clone https://github.com/unicornultrafoundation/dhcp2p.git
 cd dhcp2p
 
 # Start development stack

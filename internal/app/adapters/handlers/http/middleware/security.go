@@ -3,9 +3,9 @@ package middleware
 import (
 	"net/http"
 
-	"github.com/duchuongnguyen/dhcp2p/internal/app/adapters/handlers/http/utils"
-	"github.com/duchuongnguyen/dhcp2p/internal/app/adapters/handlers/http/validation"
-	"github.com/duchuongnguyen/dhcp2p/internal/app/domain/errors"
+	"github.com/unicornultrafoundation/dhcp2p/internal/app/adapters/handlers/http/utils"
+	"github.com/unicornultrafoundation/dhcp2p/internal/app/adapters/handlers/http/validation"
+	"github.com/unicornultrafoundation/dhcp2p/internal/app/domain/errors"
 )
 
 // SecurityMiddleware provides comprehensive request validation and sanitization

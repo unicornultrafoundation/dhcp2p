@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"github.com/duchuongnguyen/dhcp2p/internal/app/adapters/auth/libp2p"
+	"github.com/unicornultrafoundation/dhcp2p/internal/app/adapters/auth/libp2p"
 	"go.uber.org/fx"
 )
 

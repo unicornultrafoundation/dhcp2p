@@ -12,15 +12,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/duchuongnguyen/dhcp2p/internal/app/adapters/handlers/http"
-	"github.com/duchuongnguyen/dhcp2p/internal/app/domain/errors"
-	"github.com/duchuongnguyen/dhcp2p/internal/app/domain/models"
-	"github.com/duchuongnguyen/dhcp2p/internal/app/infrastructure/config"
-	"github.com/duchuongnguyen/dhcp2p/tests/helpers"
-	"github.com/duchuongnguyen/dhcp2p/tests/mocks"
 	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/unicornultrafoundation/dhcp2p/internal/app/adapters/handlers/http"
+	"github.com/unicornultrafoundation/dhcp2p/internal/app/domain/errors"
+	"github.com/unicornultrafoundation/dhcp2p/internal/app/domain/models"
+	"github.com/unicornultrafoundation/dhcp2p/internal/app/infrastructure/config"
+	"github.com/unicornultrafoundation/dhcp2p/tests/mocks"
 	"go.uber.org/mock/gomock"
 	"go.uber.org/zap"
 )
@@ -164,7 +163,7 @@ func TestHTTPHandlers_Integration_ErrorScenarios(t *testing.T) {
 				var errorResp map[string]interface{}
 				err = json.Unmarshal(w.Body.Bytes(), &errorResp)
 				require.NoError(t, err)
-				
+
 				assert.Contains(t, errorResp, "error", "Error response should contain error field")
 			}
 		})
@@ -255,10 +254,10 @@ func TestHTTPHandlers_Integration_ConcurrentRequests(t *testing.T) {
 		wg.Add(1)
 		go func(goroutineID int) {
 			defer wg.Done()
-			
+
 			for j := 0; j < numRequests/numGoroutines; j++ {
 				reqNum := goroutineID*(numRequests/numGoroutines) + j
-				
+
 				req := httptest.NewRequest("GET", "/api/v1/leases/concurrent-peer", nil)
 				w := httptest.NewRecorder()
 				router.ServeHTTP(w, req)
@@ -281,7 +280,7 @@ func TestHTTPHandlers_Integration_ConcurrentRequests(t *testing.T) {
 	// Performance assertion - should handle concurrent requests efficiently
 	assert.Less(t, duration, 5*time.Second, "Concurrent requests should complete within 5 seconds")
 
-	t.Logf("Processed %d concurrent requests in %v (%.2f req/sec)", 
+	t.Logf("Processed %d concurrent requests in %v (%.2f req/sec)",
 		numRequests, duration, float64(numRequests)/duration.Seconds())
 }
 
