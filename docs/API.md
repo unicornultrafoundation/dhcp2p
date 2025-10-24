@@ -23,14 +23,15 @@ DHCP2P uses libp2p cryptographic signatures for authentication. The authenticati
 1. **Request Nonce**: Send a POST request to `/request-auth` with your public key
 2. **Receive Nonce**: Server returns a time-limited nonce (default: 5 minutes)
 3. **Sign Nonce**: Sign the nonce with your private key using libp2p crypto
-4. **Include Signature**: Include the signature in the `Authorization` header for protected endpoints
+4. **Include Headers**: Include the public key, nonce, and signature in the required headers for protected endpoints
 5. **Server Verification**: Server verifies the signature using your public key
 
-### Authorization Header Format
+### Authentication Headers Format
 
-```
-Authorization: Bearer <base64-encoded-signature>
-```
+For protected endpoints, include these headers:
+- `X-Pubkey`: Base64-encoded libp2p public key
+- `X-Nonce`: The nonce ID returned from `/request-auth`
+- `X-Signature`: Base64-encoded signature of the nonce
 
 The signature should be the raw bytes of the libp2p signature, base64-encoded.
 
@@ -71,12 +72,8 @@ All API endpoints return consistent error responses:
 
 Request a nonce for authentication.
 
-**Request Body:**
-```json
-{
-  "pubkey": "base64-encoded-public-key"
-}
-```
+**Request Headers:**
+- `X-Pubkey`: Base64-encoded libp2p public key
 
 **Response:**
 ```json
@@ -89,10 +86,7 @@ Request a nonce for authentication.
 **Example:**
 ```bash
 curl -X POST http://localhost:8088/request-auth \
-  -H "Content-Type: application/json" \
-  -d '{
-    "pubkey": "CAESIK...base64-encoded-public-key"
-  }'
+  -H "X-Pubkey: CAESIK...base64-encoded-public-key"
 ```
 
 **Response:**
@@ -111,33 +105,31 @@ curl -X POST http://localhost:8088/request-auth \
 
 Allocate a new IP lease for a peer. This endpoint is protected and requires authentication.
 
-**Request Body:**
-```json
-{
-  "peer_id": "peer-id-string"
-}
-```
+**Request Headers:**
+- `X-Pubkey`: Base64-encoded libp2p public key
+- `X-Nonce`: The nonce ID returned from `/request-auth`
+- `X-Signature`: Base64-encoded signature of the nonce
 
 **Response:**
 ```json
 {
-  "token_id": 12345,
-  "peer_id": "peer-id-string",
-  "created_at": "2024-01-15T10:30:00Z",
-  "updated_at": "2024-01-15T10:30:00Z",
-  "expires_at": "2024-01-15T12:30:00Z",
-  "ttl": 120
+  "data": {
+    "token_id": 12345,
+    "peer_id": "peer-id-string",
+    "created_at": "2024-01-15T10:30:00Z",
+    "updated_at": "2024-01-15T10:30:00Z",
+    "expires_at": "2024-01-15T12:30:00Z",
+    "ttl": 120
+  }
 }
 ```
 
 **Example:**
 ```bash
 curl -X POST http://localhost:8088/allocate-ip \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer base64-encoded-signature" \
-  -d '{
-    "peer_id": "12D3KooWExamplePeerID"
-  }'
+  -H "X-Pubkey: base64-encoded-public-key" \
+  -H "X-Nonce: nonce-id-uuid" \
+  -H "X-Signature: base64-encoded-signature"
 ```
 
 #### Renew Lease
@@ -146,35 +138,34 @@ curl -X POST http://localhost:8088/allocate-ip \
 
 Renew an existing lease. This endpoint is protected and requires authentication.
 
-**Request Body:**
-```json
-{
-  "token_id": 12345,
-  "peer_id": "peer-id-string"
-}
-```
+**Request Headers:**
+- `X-Pubkey`: Base64-encoded libp2p public key
+- `X-Nonce`: The nonce ID returned from `/request-auth`
+- `X-Signature`: Base64-encoded signature of the nonce
+
+**Query Parameters:**
+- `tokenID` (integer, required): The token ID to renew
 
 **Response:**
 ```json
 {
-  "token_id": 12345,
-  "peer_id": "peer-id-string",
-  "created_at": "2024-01-15T10:30:00Z",
-  "updated_at": "2024-01-15T11:30:00Z",
-  "expires_at": "2024-01-15T13:30:00Z",
-  "ttl": 120
+  "data": {
+    "token_id": 12345,
+    "peer_id": "peer-id-string",
+    "created_at": "2024-01-15T10:30:00Z",
+    "updated_at": "2024-01-15T11:30:00Z",
+    "expires_at": "2024-01-15T13:30:00Z",
+    "ttl": 120
+  }
 }
 ```
 
 **Example:**
 ```bash
-curl -X POST http://localhost:8088/renew-lease \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer base64-encoded-signature" \
-  -d '{
-    "token_id": 12345,
-    "peer_id": "12D3KooWExamplePeerID"
-  }'
+curl -X POST http://localhost:8088/renew-lease?tokenID=12345 \
+  -H "X-Pubkey: base64-encoded-public-key" \
+  -H "X-Nonce: nonce-id-uuid" \
+  -H "X-Signature: base64-encoded-signature"
 ```
 
 #### Release Lease
@@ -183,30 +174,29 @@ curl -X POST http://localhost:8088/renew-lease \
 
 Release an existing lease. This endpoint is protected and requires authentication.
 
-**Request Body:**
-```json
-{
-  "token_id": 12345,
-  "peer_id": "peer-id-string"
-}
-```
+**Request Headers:**
+- `X-Pubkey`: Base64-encoded libp2p public key
+- `X-Nonce`: The nonce ID returned from `/request-auth`
+- `X-Signature`: Base64-encoded signature of the nonce
+
+**Query Parameters:**
+- `tokenID` (integer, required): The token ID to release
 
 **Response:**
 ```json
 {
-  "status": "success"
+  "data": {
+    "status": "success"
+  }
 }
 ```
 
 **Example:**
 ```bash
-curl -X POST http://localhost:8088/release-lease \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer base64-encoded-signature" \
-  -d '{
-    "token_id": 12345,
-    "peer_id": "12D3KooWExamplePeerID"
-  }'
+curl -X POST http://localhost:8088/release-lease?tokenID=12345 \
+  -H "X-Pubkey: base64-encoded-public-key" \
+  -H "X-Nonce: nonce-id-uuid" \
+  -H "X-Signature: base64-encoded-signature"
 ```
 
 #### Get Lease by Peer ID
@@ -221,12 +211,14 @@ Retrieve lease information by peer ID. This endpoint is public and does not requ
 **Response:**
 ```json
 {
-  "token_id": 12345,
-  "peer_id": "12D3KooWExamplePeerID",
-  "created_at": "2024-01-15T10:30:00Z",
-  "updated_at": "2024-01-15T11:30:00Z",
-  "expires_at": "2024-01-15T13:30:00Z",
-  "ttl": 120
+  "data": {
+    "token_id": 12345,
+    "peer_id": "12D3KooWExamplePeerID",
+    "created_at": "2024-01-15T10:30:00Z",
+    "updated_at": "2024-01-15T11:30:00Z",
+    "expires_at": "2024-01-15T13:30:00Z",
+    "ttl": 120
+  }
 }
 ```
 
@@ -247,12 +239,14 @@ Retrieve lease information by token ID. This endpoint is public and does not req
 **Response:**
 ```json
 {
-  "token_id": 12345,
-  "peer_id": "12D3KooWExamplePeerID",
-  "created_at": "2024-01-15T10:30:00Z",
-  "updated_at": "2024-01-15T11:30:00Z",
-  "expires_at": "2024-01-15T13:30:00Z",
-  "ttl": 120
+  "data": {
+    "token_id": 12345,
+    "peer_id": "12D3KooWExamplePeerID",
+    "created_at": "2024-01-15T10:30:00Z",
+    "updated_at": "2024-01-15T11:30:00Z",
+    "expires_at": "2024-01-15T13:30:00Z",
+    "ttl": 120
+  }
 }
 ```
 
@@ -363,8 +357,7 @@ Standard error response format.
 ```bash
 # Step 1: Request authentication nonce
 NONCE_RESPONSE=$(curl -s -X POST http://localhost:8088/request-auth \
-  -H "Content-Type: application/json" \
-  -d '{"pubkey": "CAESIK...your-public-key"}')
+  -H "X-Pubkey: CAESIK...your-public-key")
 
 # Extract nonce ID
 NONCE_ID=$(echo $NONCE_RESPONSE | jq -r '.nonce')
@@ -374,27 +367,28 @@ NONCE_ID=$(echo $NONCE_RESPONSE | jq -r '.nonce')
 
 # Step 3: Allocate IP lease
 curl -X POST http://localhost:8088/allocate-ip \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $SIGNATURE" \
-  -d '{"peer_id": "12D3KooWYourPeerID"}'
+  -H "X-Pubkey: CAESIK...your-public-key" \
+  -H "X-Nonce: $NONCE_ID" \
+  -H "X-Signature: $SIGNATURE"
 ```
 
 ### Error Handling Example
 
 ```bash
-# Request with invalid peer ID
+# Request with invalid signature
 curl -X POST http://localhost:8088/allocate-ip \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer invalid-signature" \
-  -d '{"peer_id": ""}'
+  -H "X-Pubkey: CAESIK...your-public-key" \
+  -H "X-Nonce: 550e8400-e29b-41d4-a716-446655440000" \
+  -H "X-Signature: invalid-signature"
 ```
 
 **Error Response:**
 ```json
 {
-  "error": "validation_error",
-  "message": "Peer ID cannot be empty",
-  "details": "Field 'peer_id' is required and must not be empty"
+  "type": "authentication",
+  "code": "AUTHENTICATION_FAILED",
+  "message": "Failed to authenticate request",
+  "details": "Invalid signature or missing authentication headers"
 }
 ```
 
