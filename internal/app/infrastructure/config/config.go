@@ -35,6 +35,13 @@ type AppConfig struct {
 	// Cache Configuration
 	CacheEnabled    bool `mapstructure:"cache_enabled"`
 	CacheDefaultTTL int  `mapstructure:"cache_default_ttl"` // minutes
+
+	// PostgreSQL Pool Configuration
+	DBMaxConns          int `mapstructure:"db_max_conns"`           // maximum number of connections in the pool
+	DBMinConns          int `mapstructure:"db_min_conns"`           // minimum number of connections in the pool
+	DBMaxConnLifetime   int `mapstructure:"db_max_conn_lifetime"`   // maximum lifetime of a connection in minutes
+	DBMaxConnIdleTime   int `mapstructure:"db_max_conn_idle_time"`  // maximum idle time of a connection in minutes
+	DBHealthCheckPeriod int `mapstructure:"db_health_check_period"` // health check period in seconds
 }
 
 func NewAppConfig() (*AppConfig, error) {

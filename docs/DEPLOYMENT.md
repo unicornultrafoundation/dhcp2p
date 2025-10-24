@@ -60,6 +60,16 @@ This guide provides comprehensive instructions for deploying DHCP2P in various e
 | `MAX_LEASE_RETRIES` | Maximum lease allocation retries | `3` | `5` |
 | `LEASE_RETRY_DELAY` | Lease retry delay in milliseconds | `500` | `1000` |
 
+### PostgreSQL Pool Configuration
+
+| Variable | Description | Default | Example |
+|----------|-------------|---------|---------|
+| `DB_MAX_CONNS` | Maximum connections in pool | `4` | `25` |
+| `DB_MIN_CONNS` | Minimum connections in pool | `0` | `5` |
+| `DB_MAX_CONN_LIFETIME` | Connection lifetime in minutes | `60` | `30` |
+| `DB_MAX_CONN_IDLE_TIME` | Idle connection timeout in minutes | `30` | `5` |
+| `DB_HEALTH_CHECK_PERIOD` | Health check period in seconds | `60` | `30` |
+
 ### Redis Configuration
 
 | Variable | Description | Default | Example |
@@ -91,6 +101,13 @@ log_level: info
 
 # Database Configuration
 database_url: "postgres://dhcp2p:password@localhost:5432/dhcp2p?sslmode=disable"
+
+# PostgreSQL Pool Configuration (recommended values)
+db_max_conns: 25
+db_min_conns: 5
+db_max_conn_lifetime: 30  # minutes
+db_max_conn_idle_time: 5  # minutes
+db_health_check_period: 30 # seconds
 
 # Redis Configuration
 redis_url: "redis://localhost:6379"
@@ -134,6 +151,13 @@ NONCE_TTL=5
 LEASE_TTL=120
 MAX_LEASE_RETRIES=3
 LEASE_RETRY_DELAY=500
+
+# PostgreSQL Pool Configuration (recommended values)
+DB_MAX_CONNS=25
+DB_MIN_CONNS=5
+DB_MAX_CONN_LIFETIME=30
+DB_MAX_CONN_IDLE_TIME=5
+DB_HEALTH_CHECK_PERIOD=30
 ```
 
 ## Docker Deployment
@@ -284,6 +308,13 @@ max_lease_retries: 5
 lease_retry_delay: 1000
 redis_pool_size: 20
 redis_min_idle_conns: 10
+
+# PostgreSQL Pool Configuration
+db_max_conns: 50
+db_min_conns: 10
+db_max_conn_lifetime: 60
+db_max_conn_idle_time: 10
+db_health_check_period: 30
 ```
 
 ## Monitoring and Observability
@@ -556,6 +587,13 @@ redis_pool_size: 20
 redis_min_idle_conns: 10
 max_lease_retries: 5
 lease_retry_delay: 1000
+
+# PostgreSQL Pool Configuration
+db_max_conns: 50
+db_min_conns: 10
+db_max_conn_lifetime: 60
+db_max_conn_idle_time: 10
+db_health_check_period: 30
 ```
 
 This deployment guide ensures DHCP2P can be deployed reliably across different environments with proper monitoring, backup, and scaling strategies.

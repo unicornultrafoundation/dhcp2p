@@ -57,6 +57,16 @@ DHCP2P supports multiple configuration methods with the following precedence (hi
 |----------|-------------|---------|---------|
 | `DHCP2P_DATABASE_URL` | PostgreSQL connection string | - | `postgres://user:pass@host:5432/db?sslmode=require` |
 
+### PostgreSQL Pool Configuration
+
+| Variable | Description | Default | Example |
+|----------|-------------|---------|---------|
+| `DHCP2P_DB_MAX_CONNS` | Maximum number of connections in the pool | `4` | `25` |
+| `DHCP2P_DB_MIN_CONNS` | Minimum number of connections in the pool | `0` | `5` |
+| `DHCP2P_DB_MAX_CONN_LIFETIME` | Maximum lifetime of a connection in minutes | `60` | `30` |
+| `DHCP2P_DB_MAX_CONN_IDLE_TIME` | Maximum idle time of a connection in minutes | `30` | `5` |
+| `DHCP2P_DB_HEALTH_CHECK_PERIOD` | Health check period in seconds | `60` | `30` |
+
 ### Redis Configuration
 
 | Variable | Description | Default | Example |
@@ -111,6 +121,13 @@ log_level: info
 
 # Database Configuration
 database_url: "postgres://dhcp2p:password@localhost:5432/dhcp2p?sslmode=disable"
+
+# PostgreSQL Pool Configuration (recommended values)
+db_max_conns: 25
+db_min_conns: 5
+db_max_conn_lifetime: 30  # minutes
+db_max_conn_idle_time: 5  # minutes
+db_health_check_period: 30 # seconds
 
 # Redis Configuration
 redis_url: "redis://localhost:6379"
@@ -225,6 +242,67 @@ DHCP2P_DATABASE_URL="postgres://user:password@host:port/database?sslmode=mode"
 - **`disable`**: No SSL connection
 - **`require`**: SSL connection required
 - **`verify-full`**: SSL connection with certificate verification
+
+### PostgreSQL Pool Configuration
+
+The PostgreSQL connection pool settings control how the application manages database connections for optimal performance and resource usage.
+
+**Note**: The default values shown in the table below come from the pgxpool library itself. If these configuration values are not set (or set to 0), the pgxpool library defaults will be used.
+
+```yaml
+# Configuration file
+db_max_conns: 25
+db_min_conns: 5
+db_max_conn_lifetime: 30  # minutes
+db_max_conn_idle_time: 5   # minutes
+db_health_check_period: 30 # seconds
+
+# Environment variables
+DHCP2P_DB_MAX_CONNS=25
+DHCP2P_DB_MIN_CONNS=5
+DHCP2P_DB_MAX_CONN_LIFETIME=30
+DHCP2P_DB_MAX_CONN_IDLE_TIME=5
+DHCP2P_DB_HEALTH_CHECK_PERIOD=30
+```
+
+#### Pool Configuration Parameters
+
+| Parameter | Description | Recommended Value | Impact |
+|-----------|-------------|-------------------|---------|
+| `db_max_conns` | Maximum connections in pool | 25-50 | Higher = more concurrent operations, but more memory usage |
+| `db_min_conns` | Minimum connections in pool | 5-10 | Higher = faster response, but more resource usage |
+| `db_max_conn_lifetime` | Connection lifetime | 30-60 minutes | Prevents stale connections, reduces memory leaks |
+| `db_max_conn_idle_time` | Idle connection timeout | 5-15 minutes | Frees unused connections, saves resources |
+| `db_health_check_period` | Health check frequency | 30-60 seconds | Detects dead connections, improves reliability |
+
+#### Performance Tuning Guidelines
+
+**High Traffic Applications:**
+```yaml
+db_max_conns: 50
+db_min_conns: 10
+db_max_conn_lifetime: 60
+db_max_conn_idle_time: 10
+db_health_check_period: 30
+```
+
+**Low Traffic Applications:**
+```yaml
+db_max_conns: 10
+db_min_conns: 2
+db_max_conn_lifetime: 30
+db_max_conn_idle_time: 5
+db_health_check_period: 60
+```
+
+**Resource Constrained:**
+```yaml
+db_max_conns: 15
+db_min_conns: 3
+db_max_conn_lifetime: 45
+db_max_conn_idle_time: 8
+db_health_check_period: 45
+```
 
 ## Redis Configuration
 
@@ -383,8 +461,12 @@ Structured JSON logging with Zap:
 redis_pool_size: 10
 redis_min_idle_conns: 5
 
-# Database connection pool (PostgreSQL driver default)
-# Configure via connection string parameters
+# PostgreSQL connection pool
+db_max_conns: 25
+db_min_conns: 5
+db_max_conn_lifetime: 30  # minutes
+db_max_conn_idle_time: 5   # minutes
+db_health_check_period: 30 # seconds
 ```
 
 ### Timeout Configuration
@@ -455,6 +537,13 @@ redis_pool_size: 20
 redis_min_idle_conns: 10
 cache_enabled: true
 cache_default_ttl: 60
+
+# PostgreSQL Pool Configuration
+db_max_conns: 50
+db_min_conns: 10
+db_max_conn_lifetime: 60
+db_max_conn_idle_time: 10
+db_health_check_period: 30
 ```
 
 ### Docker Environment Configuration
