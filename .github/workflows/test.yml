@@ -103,7 +103,7 @@ jobs:
         MAX_LEASE_RETRIES=3
         LEASE_RETRY_DELAY=500
         BUILD_VERSION=ci
-        RUN_MIGRATIONS=true
+        RUN_MIGRATIONS=false
         EOF
     
     - name: Stop database services before starting full stack
