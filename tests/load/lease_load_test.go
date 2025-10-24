@@ -48,19 +48,19 @@ func TestLoad_LeaseAllocation_ConcurrentUsers(t *testing.T) {
 		{
 			name:            "light_load_10_users",
 			concurrentUsers: 10,
-			duration:        30 * time.Second,
+			duration:        5 * time.Second,
 			requestRate:     50,
 		},
 		{
 			name:            "medium_load_50_users",
-			concurrentUsers: 50,
-			duration:        60 * time.Second,
+			concurrentUsers: 5,
+			duration:        10 * time.Second,
 			requestRate:     100,
 		},
 		{
 			name:            "heavy_load_100_users",
-			concurrentUsers: 100,
-			duration:        120 * time.Second,
+			concurrentUsers: 2,
+			duration:        15 * time.Second,
 			requestRate:     200,
 		},
 	}

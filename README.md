@@ -3,7 +3,7 @@
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/unicornultrafoundation/dhcp2p)
 [![Go Version](https://img.shields.io/badge/go-1.25+-blue)](https://golang.org/)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
-[![Coverage](https://img.shields.io/badge/coverage-80%25-yellow)](tests/)
+[![codecov](https://codecov.io/gh/unicornultrafoundation/dhcp2p/branch/main/graph/badge.svg)](https://codecov.io/gh/unicornultrafoundation/dhcp2p)
 
 A decentralized IP lease management service that provides token-based IP allocation with libp2p authentication. DHCP2P enables secure, peer-to-peer IP address management through cryptographic signatures and nonce-based authentication.
 

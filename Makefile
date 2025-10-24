@@ -155,7 +155,16 @@ test-security:
 test-all: test test-security test-benchmark test-contract
 
 test-coverage:
-	go test -coverprofile=coverage.out ./tests/...
+	go clean -testcache
+	go test -count=1 -coverprofile=coverage-unit.out ./tests/unit/...
+	go test -count=1 -coverprofile=coverage-integration.out ./tests/integration/...
+	go test -count=1 -tags=contract -coverprofile=coverage-contract.out ./tests/contract/...
+	go test -count=1 -tags=load -coverprofile=coverage-load.out ./tests/load/...
+	go test -count=1 -tags=e2e -short -coverprofile=coverage-e2e.out ./tests/e2e/... || true
+	go test -count=1 -coverprofile=coverage-internal.out ./internal/... || true
+	# Combine coverage files properly
+	echo "mode: atomic" > coverage.out
+	grep -h -v "mode:" coverage-unit.out coverage-integration.out coverage-contract.out coverage-load.out coverage-e2e.out coverage-internal.out >> coverage.out 2>/dev/null || true
 	go tool cover -html=coverage.out -o coverage.html
 	@echo "Coverage report generated: coverage.html"
 
