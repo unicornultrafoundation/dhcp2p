@@ -148,6 +148,7 @@ func (rl *RateLimiter) parseIP(ipStr string) string {
 
 // getOrCreateLimiter gets an existing limiter for the IP or creates a new one
 func (rl *RateLimiter) getOrCreateLimiter(clientIP string) *rate.Limiter {
+	// Try to load existing limiter first
 	if value, exists := rl.limiters.Load(clientIP); exists {
 		return value.(*rate.Limiter)
 	}
@@ -155,11 +156,17 @@ func (rl *RateLimiter) getOrCreateLimiter(clientIP string) *rate.Limiter {
 	// Create new limiter with token bucket algorithm
 	// Rate is requests per minute, burst is the maximum burst capacity
 	ratePerSecond := float64(rl.config.RateLimitRequestsPerMinute) / 60.0
-	limiter := rate.NewLimiter(rate.Limit(ratePerSecond), rl.config.RateLimitBurst)
+	newLimiter := rate.NewLimiter(rate.Limit(ratePerSecond), rl.config.RateLimitBurst)
 
-	// Store the limiter
-	rl.limiters.Store(clientIP, limiter)
-	return limiter
+	// Try to store the new limiter, but if another goroutine beat us to it,
+	// use the existing one
+	if actual, loaded := rl.limiters.LoadOrStore(clientIP, newLimiter); loaded {
+		// Another goroutine created a limiter, use that one
+		return actual.(*rate.Limiter)
+	}
+
+	// Our limiter was stored successfully
+	return newLimiter
 }
 
 // Allow checks if the request should be allowed based on rate limiting
