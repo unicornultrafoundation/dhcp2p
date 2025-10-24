@@ -69,6 +69,26 @@ jobs:
         DB_URL: postgres://postgres:postgres@localhost:5432/dhcp2p_test?sslmode=disable
         REDIS_URL: redis://localhost:6379/1
     
+    - name: Create .env file for Docker Compose
+      run: |
+        cat > .env << EOF
+        POSTGRES_DB=dhcp2p_test
+        POSTGRES_USER=postgres
+        POSTGRES_PASSWORD=postgres
+        DATABASE_URL=postgres://postgres:postgres@postgres:5432/dhcp2p_test?sslmode=disable
+        REDIS_URL=redis:6379
+        REDIS_PASSWORD=
+        PORT=8088
+        LOG_LEVEL=debug
+        NONCE_TTL=5
+        NONCE_CLEANER_INTERVAL=5
+        LEASE_TTL=120
+        MAX_LEASE_RETRIES=3
+        LEASE_RETRY_DELAY=500
+        BUILD_VERSION=ci
+        RUN_MIGRATIONS=true
+        EOF
+    
     - name: Start application for e2e tests
       run: make docker-up
       env:
