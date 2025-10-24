@@ -88,7 +88,7 @@ services:
       # Migration control
       RUN_MIGRATIONS: ${RUN_MIGRATIONS:-false}
     ports:
-      - "${PORT:-8088}:8088"
+      - "${PORT:-8088}:${PORT:-8088}"
     volumes:
       - ./data:/data:rw
       - ./config:/config:ro

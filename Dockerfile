@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM golang:1.25-alpine AS builder
+FROM --platform=$BUILDPLATFORM golang:1.25-alpine AS builder
 
 # Install git and ca-certificates for fetching dependencies
 RUN apk add --no-cache git ca-certificates tzdata
@@ -20,7 +20,7 @@ COPY . .
 # Build the binary with optimizations
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
-    CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
+    CGO_ENABLED=0 GOOS=linux GOARCH=$TARGETARCH \
     go build -ldflags="-w -s -X main.Build=${BUILD_VERSION:-dev}" \
     -o dhcp2p ./cmd/dhcp2p
 
