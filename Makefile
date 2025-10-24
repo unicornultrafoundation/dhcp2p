@@ -130,7 +130,18 @@ test-e2e:
 	go test -v ./tests/e2e/... -tags=e2e
 
 test-benchmark:
+	@echo "Starting Redis for benchmarks..."
+	@docker stop benchmark-redis 2>/dev/null || true
+	@docker rm benchmark-redis 2>/dev/null || true
+	@echo "Creating Redis container..."
+	@docker run -d --name benchmark-redis -p 127.0.0.1:6380:6379 redis:7-alpine
+	@docker ps --filter "name=benchmark-redis" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+	@sleep 5
+	@echo "Running benchmarks..."
 	go test -v -bench=. -benchmem ./tests/benchmark/... -tags=benchmark
+	@echo "Cleaning up Redis container..."
+	@docker stop benchmark-redis | true
+	@docker rm benchmark-redis | true
 
 test-load:
 	go test -v ./tests/load/... -tags=load
