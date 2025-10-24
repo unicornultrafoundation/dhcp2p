@@ -42,6 +42,12 @@ type AppConfig struct {
 	DBMaxConnLifetime   int `mapstructure:"db_max_conn_lifetime"`   // maximum lifetime of a connection in minutes
 	DBMaxConnIdleTime   int `mapstructure:"db_max_conn_idle_time"`  // maximum idle time of a connection in minutes
 	DBHealthCheckPeriod int `mapstructure:"db_health_check_period"` // health check period in seconds
+
+	// Rate Limiting Configuration
+	RateLimitEnabled           bool     `mapstructure:"rate_limit_enabled"`             // enable/disable rate limiting
+	RateLimitRequestsPerMinute int      `mapstructure:"rate_limit_requests_per_minute"` // requests per minute per IP
+	RateLimitBurst             int      `mapstructure:"rate_limit_burst"`               // burst capacity for token bucket
+	RateLimitTrustedProxies    []string `mapstructure:"rate_limit_trusted_proxies"`     // trusted proxy IPs for header validation
 }
 
 func NewAppConfig() (*AppConfig, error) {

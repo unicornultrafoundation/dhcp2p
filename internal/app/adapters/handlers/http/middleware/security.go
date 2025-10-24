@@ -110,24 +110,6 @@ func CORSMiddleware() func(next http.Handler) http.Handler {
 	}
 }
 
-// RateLimitMiddleware implements basic rate limiting
-func RateLimitMiddleware() func(next http.Handler) http.Handler {
-	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			// Simple rate limiting based on client IP
-			// In production, use a proper rate limiting library like golang.org/x/time/rate
-			clientIP := r.RemoteAddr
-			if clientIP == "" {
-				clientIP = "unknown"
-			}
-
-			// Add rate limiting logic here
-			// For now, just pass through
-			next.ServeHTTP(w, r)
-		})
-	}
-}
-
 // CombinedSecurityMiddleware combines all security middlewares
 func CombinedSecurityMiddleware() func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {

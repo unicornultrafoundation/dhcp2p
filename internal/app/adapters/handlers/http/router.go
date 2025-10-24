@@ -8,23 +8,26 @@ import (
 	"go.uber.org/zap"
 
 	httpMiddleware "github.com/unicornultrafoundation/dhcp2p/internal/app/adapters/handlers/http/middleware"
+	"github.com/unicornultrafoundation/dhcp2p/internal/app/infrastructure/config"
 )
 
 type Router struct {
 	*chi.Mux
 }
 
-func NewHTTPRouter(logger *zap.Logger, authHandler *AuthHandler, leaseHandler *LeaseHandler, healthHandler *HealthHandler) *Router {
+func NewHTTPRouter(logger *zap.Logger, authHandler *AuthHandler, leaseHandler *LeaseHandler, healthHandler *HealthHandler, cfg *config.AppConfig) *Router {
 	r := chi.NewRouter()
 
 	// Apply security middleware to all routes
 	r.Use(httpMiddleware.CombinedSecurityMiddleware())
 
+	// Apply IP-based rate limiting
+	r.Use(httpMiddleware.RateLimitMiddleware(cfg, logger))
+
 	// Apply standard middleware
 	r.Use(middleware.RequestLogger(&middleware.DefaultLogFormatter{Logger: zap.NewStdLog(logger), NoColor: false}))
 	r.Use(middleware.Recoverer)                 // recover from panics
 	r.Use(middleware.Timeout(60 * time.Second)) // set timeout
-	r.Use(middleware.Throttle(1000))            // limit the number of requests per second to 1000. TODO: Make the rate limit based on the IP address.
 
 	// Protected routes
 	r.Group(func(pr chi.Router) {
