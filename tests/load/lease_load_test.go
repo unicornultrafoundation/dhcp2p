@@ -15,7 +15,7 @@ import (
 	testconfig "github.com/unicornultrafoundation/dhcp2p/tests/config"
 	"github.com/unicornultrafoundation/dhcp2p/tests/fixtures"
 	"github.com/unicornultrafoundation/dhcp2p/tests/mocks"
-	"go.uber.org/mock/gomock"
+	"github.com/golang/mock/gomock"
 	"go.uber.org/zap"
 )
 
