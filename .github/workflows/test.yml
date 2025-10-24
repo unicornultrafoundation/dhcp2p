@@ -9,26 +9,6 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    
-    services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: dhcp2p_test
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-      
-      redis:
-        image: redis:7-alpine
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
 
     steps:
     - uses: actions/checkout@v4
@@ -63,11 +43,48 @@ jobs:
     - name: Run unit tests
       run: make test-unit
     
+    - name: Create .env file for integration tests
+      run: |
+        cat > .env << EOF
+        POSTGRES_DB=dhcp2p_test
+        POSTGRES_USER=postgres
+        POSTGRES_PASSWORD=postgres
+        DATABASE_URL=postgres://postgres:postgres@localhost:5432/dhcp2p_test?sslmode=disable
+        EOF
+    
+    - name: Start only database services for integration tests
+      run: |
+        docker compose --env-file .env up -d postgres redis
+        
+    - name: Wait for database services to be ready
+      run: |
+        echo "Waiting for PostgreSQL..."
+        for i in {1..30}; do
+          if docker exec dhcp2p-postgres pg_isready -U postgres -d dhcp2p_test; then
+            echo "PostgreSQL is ready!"
+            break
+          else
+            echo "Waiting for PostgreSQL... ($i/30)"
+            sleep 2
+          fi
+        done
+        
+        echo "Waiting for Redis..."
+        for i in {1..30}; do
+          if docker exec dhcp2p-redis redis-cli ping; then
+            echo "Redis is ready!"
+            break
+          else
+            echo "Waiting for Redis... ($i/30)"
+            sleep 2
+          fi
+        done
+    
     - name: Run integration tests
       run: make test-integration
       env:
         DB_URL: postgres://postgres:postgres@localhost:5432/dhcp2p_test?sslmode=disable
-        REDIS_URL: redis://localhost:6379/1
+        REDIS_URL: redis://localhost:6379
     
     - name: Create .env file for Docker Compose
       run: |
@@ -89,11 +106,12 @@ jobs:
         RUN_MIGRATIONS=true
         EOF
     
+    - name: Stop database services before starting full stack
+      run: |
+        docker compose --env-file .env down
+        
     - name: Start application for e2e tests
       run: make docker-up
-      env:
-        DB_URL: postgres://postgres:postgres@localhost:5432/dhcp2p_test?sslmode=disable
-        REDIS_URL: redis://localhost:6379/2
     
     - name: Wait for application to be ready
       run: |
