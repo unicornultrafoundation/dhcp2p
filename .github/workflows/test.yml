@@ -182,6 +182,7 @@ jobs:
       uses: codecov/codecov-action@v4
       with:
         file: ./coverage.out
+        token: ${{ secrets.CODECOV_TOKEN }}
         fail_ci_if_error: false
     
     - name: Coverage Summary

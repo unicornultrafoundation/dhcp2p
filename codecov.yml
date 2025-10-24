@@ -1,0 +1,55 @@
+# Codecov Configuration
+codecov:
+  require_ci_to_pass: yes
+
+coverage:
+  precision: 2
+  round: down
+  range: "70...100"
+  status:
+    project:
+      default:
+        target: auto
+        threshold: 1%
+        informational: true
+        only_pulls: false
+    patch:
+      default:
+        target: auto
+        threshold: 1%
+        informational: true
+        only_pulls: false
+
+comment:
+  layout: "reach,diff,flags,files,footer"
+  behavior: default
+  require_changes: false
+
+ignore:
+  - "tests/**/*"
+  - "**/mocks/**/*"
+  - "**/*_mock.go"
+  - "**/*_test.go"
+  - "vendor/**/*"
+
+flags:
+  unit:
+    paths:
+      - tests/unit/
+    carryforward: true
+  integration:
+    paths:
+      - tests/integration/
+    carryforward: true
+  e2e:
+    paths:
+      - tests/e2e/
+    carryforward: true
+  load:
+    paths:
+      - tests/load/
+    carryforward: true
+  contract:
+    paths:
+      - tests/contract/
+    carryforward: true
