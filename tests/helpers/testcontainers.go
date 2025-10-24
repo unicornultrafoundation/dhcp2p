@@ -130,7 +130,7 @@ func RunMigrations(connStr string) error {
 	}
 	defer db.Close()
 
-	// Create tables (simplified version of your migrations)
+	// Create tables (simplified version)
 	migrations := []string{
 		`CREATE TABLE IF NOT EXISTS alloc_state (
 			id serial PRIMARY KEY,

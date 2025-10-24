@@ -9,12 +9,12 @@ import (
 	"testing"
 	"time"
 
+	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	handlers "github.com/unicornultrafoundation/dhcp2p/internal/app/adapters/handlers/http"
 	"github.com/unicornultrafoundation/dhcp2p/internal/app/domain/errors"
 	"github.com/unicornultrafoundation/dhcp2p/internal/app/domain/models"
 	"github.com/unicornultrafoundation/dhcp2p/tests/mocks"
-	"github.com/golang/mock/gomock"
 )
 
 // generateValidPubkey creates a valid-sized pubkey for testing (64 bytes)

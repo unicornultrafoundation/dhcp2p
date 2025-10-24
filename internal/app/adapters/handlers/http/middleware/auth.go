@@ -15,12 +15,10 @@ import (
 	"github.com/unicornultrafoundation/dhcp2p/internal/app/domain/ports"
 )
 
+// WithAuth middleware validates the authentication headers and sets the peerID in the context
 func WithAuth(authService ports.AuthService) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			// Security middleware handles request validation and sanitization
-			// We only need to validate authentication-specific headers here
-
 			// Validate headers using enhanced validation
 			pubkeyResult := validation.ValidateHeader(r, "X-Pubkey", validation.PubkeyValidationConfig())
 			if pubkeyResult.Error != nil {

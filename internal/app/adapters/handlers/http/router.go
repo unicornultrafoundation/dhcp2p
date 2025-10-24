@@ -24,14 +24,7 @@ func NewHTTPRouter(logger *zap.Logger, authHandler *AuthHandler, leaseHandler *L
 	r.Use(middleware.RequestLogger(&middleware.DefaultLogFormatter{Logger: zap.NewStdLog(logger), NoColor: false}))
 	r.Use(middleware.Recoverer)                 // recover from panics
 	r.Use(middleware.Timeout(60 * time.Second)) // set timeout
-	r.Use(middleware.Throttle(1000))            // limit the number of requests per second to 1000
-
-	// Health check routes (no authentication required)
-	r.Get("/health", healthHandler.Health)
-	r.Get("/ready", healthHandler.Readiness)
-
-	// Auth routes
-	r.Post("/request-auth", authHandler.RequestAuth)
+	r.Use(middleware.Throttle(1000))            // limit the number of requests per second to 1000. TODO: Make the rate limit based on the IP address.
 
 	// Protected routes
 	r.Group(func(pr chi.Router) {
@@ -49,6 +42,13 @@ func NewHTTPRouter(logger *zap.Logger, authHandler *AuthHandler, leaseHandler *L
 	// Public routes
 	r.Get("/lease/peer-id/{peerID}", leaseHandler.GetLeaseByPeerID)
 	r.Get("/lease/token-id/{tokenID}", leaseHandler.GetLeaseByTokenID)
+
+	// Auth routes
+	r.Post("/request-auth", authHandler.RequestAuth)
+
+	// Health check routes (no authentication required)
+	r.Get("/health", healthHandler.Health)
+	r.Get("/ready", healthHandler.Readiness)
 
 	return &Router{
 		Mux: r,

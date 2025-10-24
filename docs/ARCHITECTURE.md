@@ -22,19 +22,19 @@ DHCP2P follows Clean Architecture (Hexagonal Architecture) principles, ensuring 
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                        External World                          │
-│  HTTP Clients  │  PostgreSQL  │  Redis  │  libp2p Network     │
+│                         External World                          │
+│  HTTP Clients     │        PostgreSQL         │     Redis       │
 └─────────────────────────────────────────────────────────────────┘
                                 │
                                 ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │                    Infrastructure Layer                         │
-│  HTTP Server  │  Database Adapters  │  Redis Adapters  │ Auth │
+│  HTTP Server  │  Database Adapters  │  Redis Adapters  │ Auth   │ 
 └─────────────────────────────────────────────────────────────────┘
                                 │
                                 ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                      Adapters Layer                            │
+│                       Adapters Layer                            │
 │  HTTP Handlers  │  Repository Implementations  │  Auth Adapters │
 └─────────────────────────────────────────────────────────────────┘
                                 │
@@ -47,7 +47,7 @@ DHCP2P follows Clean Architecture (Hexagonal Architecture) principles, ensuring 
                                 ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │                       Domain Layer                              │
-│  Models  │  Ports (Interfaces)  │  Errors  │  Business Rules  │
+│  Models  │  Ports (Interfaces)  │  Errors  │   Business Rules   │
 └─────────────────────────────────────────────────────────────────┘
 ```
 

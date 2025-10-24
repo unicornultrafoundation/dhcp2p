@@ -43,15 +43,6 @@ validate_environment() {
         missing_vars="$missing_vars REDIS_URL"
     fi
     
-    # PASSWORD and ACCOUNT are no longer required since Ethereum/keystore functionality was removed
-    # if [ -z "$PASSWORD" ]; then
-    #     missing_vars="$missing_vars PASSWORD"
-    # fi
-    # 
-    # if [ -z "$ACCOUNT" ]; then
-    #     missing_vars="$missing_vars ACCOUNT"
-    # fi
-    
     if [ -n "$missing_vars" ]; then
         print_error "Missing required environment variables:$missing_vars"
         print_error "Please set all required environment variables and try again"

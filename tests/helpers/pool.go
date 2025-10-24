@@ -6,6 +6,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/docker/go-connections/nat"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
 	"github.com/testcontainers/testcontainers-go/wait"
@@ -146,7 +147,8 @@ func (p *ContainerPool) createRedisContainer(ctx context.Context) (testcontainer
 		Image:        "redis:7-alpine",
 		ExposedPorts: []string{"6379/tcp"},
 		WaitingFor: wait.ForLog("Ready to accept connections").
-			WithStartupTimeout(30 * time.Second),
+			WithOccurrence(1).
+			WithStartupTimeout(60 * time.Second),
 	}
 
 	container, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
@@ -156,6 +158,9 @@ func (p *ContainerPool) createRedisContainer(ctx context.Context) (testcontainer
 	if err != nil {
 		return nil, "", fmt.Errorf("failed to create redis container: %w", err)
 	}
+
+	// Give the container additional time to initialize
+	time.Sleep(100 * time.Millisecond)
 
 	p.createdCount++
 	connStr, err := p.getRedisConnectionString(ctx, container)
@@ -180,9 +185,17 @@ func (p *ContainerPool) getPostgresConnectionString(ctx context.Context, contain
 		return "", fmt.Errorf("failed to get postgres host: %w", err)
 	}
 	
-	port, err := container.MappedPort(ctx, "5432")
-	if err != nil {
-		return "", fmt.Errorf("failed to get postgres port: %w", err)
+	// Retry getting the port mapping with exponential backoff
+	var port nat.Port
+	for i := 0; i < 10; i++ {
+		port, err = container.MappedPort(ctx, "5432")
+		if err == nil {
+			break
+		}
+		if i == 9 {
+			return "", fmt.Errorf("failed to get postgres port after retries: %w", err)
+		}
+		time.Sleep(time.Duration(200*(i+1)) * time.Millisecond)
 	}
 	
 	return fmt.Sprintf("postgres://test:test@%s:%s/dhcp2p_test?sslmode=disable", host, port.Port()), nil
@@ -195,9 +208,17 @@ func (p *ContainerPool) getRedisConnectionString(ctx context.Context, container 
 		return "", fmt.Errorf("failed to get redis host: %w", err)
 	}
 
-	port, err := container.MappedPort(ctx, "6379")
-	if err != nil {
-		return "", fmt.Errorf("failed to get redis port: %w", err)
+	// Retry getting the port mapping with exponential backoff
+	var port nat.Port
+	for i := 0; i < 10; i++ {
+		port, err = container.MappedPort(ctx, "6379")
+		if err == nil {
+			break
+		}
+		if i == 9 {
+			return "", fmt.Errorf("failed to get redis port after retries: %w", err)
+		}
+		time.Sleep(time.Duration(200*(i+1)) * time.Millisecond)
 	}
 
 	return fmt.Sprintf("%s:%s", host, port.Port()), nil
