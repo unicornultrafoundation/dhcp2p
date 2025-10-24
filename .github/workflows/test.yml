@@ -113,18 +113,58 @@ jobs:
     - name: Start application for e2e tests
       run: make docker-up
     
-    - name: Wait for application to be ready
+    - name: Check container status and logs
+      run: |
+        echo "=== Docker Compose Status ==="
+        docker compose --env-file .env ps
+        echo ""
+        echo "=== Application Container Logs ==="
+        docker logs dhcp2p-app
+        echo ""
+        echo "=== Database Container Status ==="
+        docker logs dhcp2p-postgres
+        echo ""
+        echo "=== Redis Container Status ==="
+        docker logs dhcp2p-redis
+        
+    - name: Wait for migration to complete
+      run: |
+        echo "Waiting for database migration to complete..."
+        for i in {1..30}; do
+          if docker logs dhcp2p-migrate 2>&1 | grep -q "Migrations completed successfully\|No migrations to run"; then
+            echo "Database migration completed!"
+            break
+          else
+            echo "Waiting for migration... ($i/30)"
+            sleep 2
+          fi
+        done
+        
+        echo "=== Migration Container Logs ==="
+        docker logs dhcp2p-migrate
+        
+    - name: Wait for application to be ready (with extended timeout)
       run: |
         echo "Waiting for application to start..."
-        for i in {1..30}; do
+        for i in {1..60}; do
           if curl -f http://localhost:8088/health; then
             echo "Application is ready!"
             break
           else
-            echo "Waiting for application... ($i/30)"
-            sleep 2
+            echo "Waiting for application... ($i/60)"
+            sleep 3
           fi
         done
+        
+        # Final check
+        if ! curl -f http://localhost:8088/health; then
+          echo "Application failed to start within timeout!"
+          echo "=== Final Container Status ==="
+          docker compose --env-file .env ps
+          echo "=== Final Application Logs ==="
+          docker logs dhcp2p-app
+          exit 1
+        fi
     
     - name: Run e2e tests
       run: make test-e2e
