@@ -74,7 +74,6 @@ cp .env.example .env
 - **[Configuration Reference](docs/CONFIGURATION.md)** - All configuration options
 - **[Security Guide](docs/SECURITY.md)** - Authentication and security practices
 - **[Contributing Guide](docs/CONTRIBUTING.md)** - How to contribute to the project
-- **[Docker Deployment](docker/README.md)** - Comprehensive Docker deployment guide
 - **[Testing Guide](tests/README.md)** - Testing setup and best practices
 
 ## 🔧 Common Commands
