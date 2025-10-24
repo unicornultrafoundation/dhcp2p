@@ -10,7 +10,7 @@ import (
 	"github.com/unicornultrafoundation/dhcp2p/internal/app/domain/models"
 	"github.com/unicornultrafoundation/dhcp2p/internal/app/infrastructure/config"
 	"github.com/unicornultrafoundation/dhcp2p/tests/mocks"
-	"go.uber.org/mock/gomock"
+	"github.com/golang/mock/gomock"
 	"go.uber.org/zap"
 )
 
