@@ -50,12 +50,82 @@ type AppConfig struct {
 	RateLimitTrustedProxies    []string `mapstructure:"rate_limit_trusted_proxies"`     // trusted proxy IPs for header validation
 }
 
+// NewDefaultAppConfig returns an AppConfig with all default values
+func NewDefaultAppConfig() *AppConfig {
+	return &AppConfig{
+		// Server Configuration
+		Port:     8088,
+		LogLevel: "info",
+
+		// Nonce Configuration
+		NonceTTL:             5, // minutes
+		NonceCleanerInterval: 5, // minutes
+
+		// Lease Configuration
+		LeaseTTL:        120, // minutes
+		MaxLeaseRetries: 3,
+		LeaseRetryDelay: 500, // milliseconds
+
+		// Redis Configuration
+		RedisMaxRetries:   3,
+		RedisPoolSize:     10,
+		RedisMinIdleConns: 5,
+		RedisDialTimeout:  5, // seconds
+		RedisReadTimeout:  3, // seconds
+		RedisWriteTimeout: 3, // seconds
+
+		// Cache Configuration
+		CacheEnabled:    true,
+		CacheDefaultTTL: 30, // minutes
+
+		// PostgreSQL Pool Configuration
+		DBMaxConns:          25,
+		DBMinConns:          5,
+		DBMaxConnLifetime:   30, // minutes
+		DBMaxConnIdleTime:   5,  // minutes
+		DBHealthCheckPeriod: 30, // seconds
+
+		// Rate Limiting Configuration
+		RateLimitEnabled:           true,
+		RateLimitRequestsPerMinute: 100,
+		RateLimitBurst:             20,
+		RateLimitTrustedProxies:    []string{},
+	}
+}
+
 func NewAppConfig() (*AppConfig, error) {
 	v := viper.GetViper()
 
 	// Set environment prefix
 	v.SetEnvPrefix(ENV_PREFIX)
 	v.AutomaticEnv()
+
+	// Set default values from our centralized defaults
+	defaults := NewDefaultAppConfig()
+	v.SetDefault("port", defaults.Port)
+	v.SetDefault("log_level", defaults.LogLevel)
+	v.SetDefault("nonce_ttl", defaults.NonceTTL)
+	v.SetDefault("nonce_cleaner_interval", defaults.NonceCleanerInterval)
+	v.SetDefault("lease_ttl", defaults.LeaseTTL)
+	v.SetDefault("max_lease_retries", defaults.MaxLeaseRetries)
+	v.SetDefault("lease_retry_delay", defaults.LeaseRetryDelay)
+	v.SetDefault("redis_max_retries", defaults.RedisMaxRetries)
+	v.SetDefault("redis_pool_size", defaults.RedisPoolSize)
+	v.SetDefault("redis_min_idle_conns", defaults.RedisMinIdleConns)
+	v.SetDefault("redis_dial_timeout", defaults.RedisDialTimeout)
+	v.SetDefault("redis_read_timeout", defaults.RedisReadTimeout)
+	v.SetDefault("redis_write_timeout", defaults.RedisWriteTimeout)
+	v.SetDefault("cache_enabled", defaults.CacheEnabled)
+	v.SetDefault("cache_default_ttl", defaults.CacheDefaultTTL)
+	v.SetDefault("db_max_conns", defaults.DBMaxConns)
+	v.SetDefault("db_min_conns", defaults.DBMinConns)
+	v.SetDefault("db_max_conn_lifetime", defaults.DBMaxConnLifetime)
+	v.SetDefault("db_max_conn_idle_time", defaults.DBMaxConnIdleTime)
+	v.SetDefault("db_health_check_period", defaults.DBHealthCheckPeriod)
+	v.SetDefault("rate_limit_enabled", defaults.RateLimitEnabled)
+	v.SetDefault("rate_limit_requests_per_minute", defaults.RateLimitRequestsPerMinute)
+	v.SetDefault("rate_limit_burst", defaults.RateLimitBurst)
+	v.SetDefault("rate_limit_trusted_proxies", defaults.RateLimitTrustedProxies)
 
 	// Load config file if exists
 	configPath := v.GetString(flag.CONFIG_FLAG)

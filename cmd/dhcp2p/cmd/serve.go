@@ -18,16 +18,16 @@ func serveCmd() *cobra.Command {
 	}
 
 	// Add flags
-	cmd.Flags().IntP(flag.PORT_FLAG, flag.PORT_FLAG_SHORT, 8088, "Port to run the server on")
-	cmd.Flags().StringP(flag.LOG_LEVEL_FLAG, flag.LOG_LEVEL_FLAG_SHORT, "info", "Log level")
+	cmd.Flags().IntP(flag.PORT_FLAG, flag.PORT_FLAG_SHORT, 0, "Port to run the server on")
+	cmd.Flags().StringP(flag.LOG_LEVEL_FLAG, flag.LOG_LEVEL_FLAG_SHORT, "", "Log level")
 	cmd.Flags().StringP(flag.DATABASE_URL_FLAG, flag.DATABASE_URL_FLAG_SHORT, "", "Database URL")
 	cmd.Flags().StringP(flag.REDIS_URL_FLAG, flag.REDIS_URL_FLAG_SHORT, "", "Redis URL")
 	cmd.Flags().StringP(flag.REDIS_PASSWORD_FLAG, flag.REDIS_PASSWORD_FLAG_SHORT, "", "Redis Password")
-	cmd.Flags().IntP(flag.NONCE_TTL_FLAG, flag.NONCE_TTL_FLAG_SHORT, 5, "Nonce TTL")                                        // in minutes
-	cmd.Flags().IntP(flag.NONCE_CLEANER_INTERVAL_FLAG, flag.NONCE_CLEANER_INTERVAL_FLAG_SHORT, 5, "Nonce Cleaner Interval") // in minutes
-	cmd.Flags().IntP(flag.LEASE_TTL_FLAG, flag.LEASE_TTL_FLAG_SHORT, 120, "Lease TTL")                                      // in minutes
-	cmd.Flags().IntP(flag.MAX_LEASE_RETRIES_FLAG, flag.MAX_LEASE_RETRIES_FLAG_SHORT, 3, "Max Lease Retries")
-	cmd.Flags().IntP(flag.LEASE_RETRY_DELAY_FLAG, flag.LEASE_RETRY_DELAY_FLAG_SHORT, 500, "Lease Retry Delay") // in milliseconds
+	cmd.Flags().IntP(flag.NONCE_TTL_FLAG, flag.NONCE_TTL_FLAG_SHORT, 0, "Nonce TTL")                                        // in minutes
+	cmd.Flags().IntP(flag.NONCE_CLEANER_INTERVAL_FLAG, flag.NONCE_CLEANER_INTERVAL_FLAG_SHORT, 0, "Nonce Cleaner Interval") // in minutes
+	cmd.Flags().IntP(flag.LEASE_TTL_FLAG, flag.LEASE_TTL_FLAG_SHORT, 0, "Lease TTL")                                        // in minutes
+	cmd.Flags().IntP(flag.MAX_LEASE_RETRIES_FLAG, flag.MAX_LEASE_RETRIES_FLAG_SHORT, 0, "Max Lease Retries")
+	cmd.Flags().IntP(flag.LEASE_RETRY_DELAY_FLAG, flag.LEASE_RETRY_DELAY_FLAG_SHORT, 0, "Lease Retry Delay") // in milliseconds
 
 	// Required flags
 	cmd.MarkFlagRequired(flag.DATABASE_URL_FLAG)

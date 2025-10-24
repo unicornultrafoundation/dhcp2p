@@ -1,0 +1,48 @@
+# DHCP2P Configuration Example
+# Copy this file to config.yaml and modify as needed
+# All values shown here are the default values
+
+# Server Configuration
+port: 8088
+log_level: info
+
+# Database Configuration (Required)
+# database_url: "postgres://user:password@localhost:5432/dhcp2p?sslmode=disable"
+
+# Redis Configuration (Required)
+# redis_url: "localhost:6379"
+# redis_password: ""
+
+# Nonce Configuration
+nonce_ttl: 5                    # minutes
+nonce_cleaner_interval: 5       # minutes
+
+# Lease Configuration
+lease_ttl: 120                  # minutes
+max_lease_retries: 3
+lease_retry_delay: 500          # milliseconds
+
+# Redis Pool Configuration
+redis_max_retries: 3
+redis_pool_size: 10
+redis_min_idle_conns: 5
+redis_dial_timeout: 5           # seconds
+redis_read_timeout: 3          # seconds
+redis_write_timeout: 3         # seconds
+
+# Cache Configuration
+cache_enabled: true
+cache_default_ttl: 30          # minutes
+
+# PostgreSQL Pool Configuration
+db_max_conns: 25
+db_min_conns: 5
+db_max_conn_lifetime: 30        # minutes
+db_max_conn_idle_time: 5        # minutes
+db_health_check_period: 30      # seconds
+
+# Rate Limiting Configuration
+rate_limit_enabled: true
+rate_limit_requests_per_minute: 100
+rate_limit_burst: 20
+rate_limit_trusted_proxies: []  # Add proxy IPs as needed, e.g., ["127.0.0.1", "10.0.0.0/8"]
