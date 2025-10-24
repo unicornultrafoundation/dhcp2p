@@ -41,11 +41,18 @@ jobs:
     - name: Cache Go modules
       uses: actions/cache@v3
       with:
-        path: ~/go/pkg/mod
-        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        path: |
+          ~/go/pkg/mod
+          ~/.cache/go-build
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum', '**/go.mod') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
     
     - name: Install dependencies
       run: go mod download
+    
+    - name: Install mockgen
+      run: go install github.com/golang/mock/mockgen@latest
     
     - name: Generate mocks
       run: make test-mocks
@@ -61,6 +68,8 @@ jobs:
     
     - name: Run e2e tests
       run: make test-e2e
+      env:
+        BASE_URL: http://localhost:8088
     
     - name: Generate coverage report
       run: make test-coverage
@@ -77,3 +86,12 @@ jobs:
         echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
         go tool cover -func=coverage.out >> $GITHUB_STEP_SUMMARY
         echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+    
+    - name: Upload coverage artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: coverage-report
+        path: |
+          coverage.html
+          coverage.out
+        retention-days: 30
