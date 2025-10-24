@@ -57,6 +57,9 @@ jobs:
     - name: Generate mocks
       run: make test-mocks
     
+    - name: Update go.sum for new dependencies
+      run: go mod tidy
+    
     - name: Run unit tests
       run: make test-unit
     
