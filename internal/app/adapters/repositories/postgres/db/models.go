@@ -11,6 +11,7 @@ import (
 type AllocState struct {
 	ID          int32
 	LastTokenID int64
+	MaxTokenID  int64
 }
 
 type Lease struct {

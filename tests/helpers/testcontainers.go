@@ -134,7 +134,8 @@ func RunMigrations(connStr string) error {
 	migrations := []string{
 		`CREATE TABLE IF NOT EXISTS alloc_state (
 			id serial PRIMARY KEY,
-			last_token_id bigint NOT NULL
+			last_token_id bigint NOT NULL,
+			max_token_id bigint NOT NULL DEFAULT 168162304
 		)`,
 		`CREATE TABLE IF NOT EXISTS leases (
 			token_id bigint PRIMARY KEY,
@@ -152,7 +153,7 @@ func RunMigrations(connStr string) error {
 			used_at timestamptz NULL
 		)`,
 		`CREATE INDEX IF NOT EXISTS idx_leases_expires_at ON leases (expires_at)`,
-		`INSERT INTO alloc_state (id, last_token_id) VALUES (1, 184418304) ON CONFLICT (id) DO NOTHING`,
+		`INSERT INTO alloc_state (id, last_token_id, max_token_id) VALUES (1, 167902209, 168162304) ON CONFLICT (id) DO NOTHING`,
 	}
 
 	for _, migration := range migrations {

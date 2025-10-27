@@ -13,8 +13,8 @@ import (
 
 const allocateNextTokenID = `-- name: AllocateNextTokenID :one
 UPDATE alloc_state
-SET last_token_id = (last_token_id - 1)
-WHERE id = 1
+SET last_token_id = (last_token_id + 1)
+WHERE id = 1 AND last_token_id < max_token_id
 RETURNING last_token_id
 `
 

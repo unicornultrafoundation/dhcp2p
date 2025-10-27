@@ -79,6 +79,11 @@ table "alloc_state" {
     type = bigint
     null = false
   }
+  column "max_token_id" {
+    type = bigint
+    null = false
+    default = 168162304
+  }
 
   primary_key {
     columns = [column.id]

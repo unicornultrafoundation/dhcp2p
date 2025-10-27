@@ -56,8 +56,8 @@ RETURNING token_id, peer_id, expires_at, created_at, updated_at, EXTRACT(EPOCH F
 
 -- name: AllocateNextTokenID :one
 UPDATE alloc_state
-SET last_token_id = (last_token_id - 1)
-WHERE id = 1
+SET last_token_id = (last_token_id + 1)
+WHERE id = 1 AND last_token_id < max_token_id
 RETURNING last_token_id;
 
 -- name: ReleaseLease :exec

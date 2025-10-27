@@ -14,12 +14,13 @@ import (
 
 // ContainerPool manages a pool of reusable test containers
 type ContainerPool struct {
-	mu            sync.RWMutex
-	postgresPool  chan testcontainers.Container
-	redisPool     chan testcontainers.Container
-	maxPoolSize   int
-	createdCount  int
-	logger        interface{} // Use interface to avoid import cycles
+	mu                  sync.RWMutex
+	postgresPool        chan testcontainers.Container
+	redisPool           chan testcontainers.Container
+	maxPoolSize         int
+	postgresCreatedCount int
+	redisCreatedCount    int
+	logger              interface{} // Use interface to avoid import cycles
 }
 
 // NewContainerPool creates a new container pool
@@ -109,8 +110,8 @@ func (p *ContainerPool) ReturnRedisContainer(container testcontainers.Container)
 
 // createPostgresContainer creates a new PostgreSQL container
 func (p *ContainerPool) createPostgresContainer(ctx context.Context) (testcontainers.Container, string, error) {
-	if p.createdCount >= p.maxPoolSize {
-		return nil, "", fmt.Errorf("maximum pool size reached")
+	if p.postgresCreatedCount >= p.maxPoolSize {
+		return nil, "", fmt.Errorf("maximum postgres pool size reached")
 	}
 
 	container, err := postgres.RunContainer(ctx,
@@ -127,7 +128,7 @@ func (p *ContainerPool) createPostgresContainer(ctx context.Context) (testcontai
 		return nil, "", fmt.Errorf("failed to create postgres container: %w", err)
 	}
 
-	p.createdCount++
+	p.postgresCreatedCount++
 	connStr, err := p.getPostgresConnectionString(ctx, container)
 	if err != nil {
 		container.Terminate(ctx)
@@ -139,8 +140,8 @@ func (p *ContainerPool) createPostgresContainer(ctx context.Context) (testcontai
 
 // createRedisContainer creates a new Redis container
 func (p *ContainerPool) createRedisContainer(ctx context.Context) (testcontainers.Container, string, error) {
-	if p.createdCount >= p.maxPoolSize {
-		return nil, "", fmt.Errorf("maximum pool size reached")
+	if p.redisCreatedCount >= p.maxPoolSize {
+		return nil, "", fmt.Errorf("maximum redis pool size reached")
 	}
 
 	redisReq := testcontainers.ContainerRequest{
@@ -160,9 +161,9 @@ func (p *ContainerPool) createRedisContainer(ctx context.Context) (testcontainer
 	}
 
 	// Give the container additional time to initialize
-	time.Sleep(100 * time.Millisecond)
+	time.Sleep(200 * time.Millisecond)
 
-	p.createdCount++
+	p.redisCreatedCount++
 	connStr, err := p.getRedisConnectionString(ctx, container)
 	if err != nil {
 		container.Terminate(ctx)
@@ -210,15 +211,15 @@ func (p *ContainerPool) getRedisConnectionString(ctx context.Context, container 
 
 	// Retry getting the port mapping with exponential backoff
 	var port nat.Port
-	for i := 0; i < 10; i++ {
-		port, err = container.MappedPort(ctx, "6379")
+	for i := 0; i < 15; i++ {
+		port, err = container.MappedPort(ctx, "6379/tcp")
 		if err == nil {
 			break
 		}
-		if i == 9 {
+		if i == 14 {
 			return "", fmt.Errorf("failed to get redis port after retries: %w", err)
 		}
-		time.Sleep(time.Duration(200*(i+1)) * time.Millisecond)
+		time.Sleep(time.Duration(300*(i+1)) * time.Millisecond)
 	}
 
 	return fmt.Sprintf("%s:%s", host, port.Port()), nil

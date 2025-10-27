@@ -49,7 +49,7 @@ func (h *DatabaseHelper) CleanupTables(ctx context.Context) error {
 	}
 
 	// Reset alloc_state to initial value
-	if _, err := h.DB.ExecContext(ctx, "INSERT INTO alloc_state (id, last_token_id) VALUES (1, 184418304) ON CONFLICT (id) DO UPDATE SET last_token_id = 184418304"); err != nil {
+	if _, err := h.DB.ExecContext(ctx, "INSERT INTO alloc_state (id, last_token_id, max_token_id) VALUES (1, 167902209, 168162304) ON CONFLICT (id) DO UPDATE SET last_token_id = 167902209, max_token_id = 168162304"); err != nil {
 		return fmt.Errorf("failed to reset alloc_state: %w", err)
 	}
 

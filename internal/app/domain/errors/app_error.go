@@ -170,3 +170,4 @@ var (
 	// Rate limit errors
 	ErrRateLimitExceeded = NewRateLimitError("RATE_LIMIT_EXCEEDED", "Rate limit exceeded", nil)
 )
+

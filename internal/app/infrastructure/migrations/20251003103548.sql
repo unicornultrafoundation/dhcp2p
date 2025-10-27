@@ -4,6 +4,7 @@ COMMENT ON SCHEMA "public" IS 'Schema for dhcp2p';
 CREATE TABLE "public"."alloc_state" (
   "id" serial NOT NULL,
   "last_token_id" bigint NOT NULL,
+  "max_token_id" bigint NOT NULL DEFAULT 168162304,
   PRIMARY KEY ("id")
 );
 -- Create "leases" table
