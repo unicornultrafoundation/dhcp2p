@@ -24,14 +24,24 @@ RUN --mount=type=cache,target=/go/pkg/mod \
     go build -ldflags="-w -s -X main.Build=${BUILD_VERSION:-dev}" \
     -o dhcp2p ./cmd/dhcp2p
 
-# Final stage - Alpine for shell support
+# Final stage - Alpine with Atlas CLI and application
 FROM alpine:latest
 
-# Install ca-certificates, timezone data, and curl for healthchecks
-RUN apk add --no-cache ca-certificates tzdata curl
+# Install Atlas CLI and other dependencies
+RUN apk add --no-cache \
+    curl \
+    postgresql-client \
+    ca-certificates \
+    tzdata
+
+# Install Atlas CLI
+RUN curl -sSfL https://atlasgo.sh | sh -s -- -b /usr/local/bin
 
 # Copy the binary
 COPY --from=builder /app/dhcp2p /dhcp2p
+
+# Copy migration files
+COPY --from=builder /app/internal/app/infrastructure/migrations /migrations
 
 # Copy timezone data
 COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
@@ -40,20 +50,27 @@ COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
 COPY scripts/docker-entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
+# Run as non-root user
+RUN adduser -D -s /bin/sh dhcp2p
+
+# Create directories and set permissions for dhcp2p user
+RUN mkdir -p /home/dhcp2p/logs && \
+    chown -R dhcp2p:dhcp2p /home/dhcp2p && \
+    chown -R dhcp2p:dhcp2p /migrations && \
+    chown dhcp2p:dhcp2p /dhcp2p && \
+    chown dhcp2p:dhcp2p /entrypoint.sh
+
+USER dhcp2p
+
+# Prepare writable workspace (for logs)
+WORKDIR /home/dhcp2p
+
 # Expose port
 EXPOSE 8088
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD curl --fail --silent http://localhost:8088/health || exit 1
-
-# Run as non-root user
-RUN adduser -D -s /bin/sh dhcp2p
-USER dhcp2p
-
-# Prepare writable workspace (for logs)
-WORKDIR /home/dhcp2p
-RUN mkdir -p logs
 
 # Use entrypoint script
 ENTRYPOINT ["/entrypoint.sh"]

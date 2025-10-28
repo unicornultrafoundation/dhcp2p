@@ -71,29 +71,6 @@ services:
     tmpfs:
       - /tmp
 
-  dhcp2p-migrate:
-    build:
-      context: .
-      dockerfile: Dockerfile.migrate
-      args:
-        BUILD_VERSION: ${BUILD_VERSION}
-    container_name: dhcp2p-migrate-prod
-    environment:
-      DATABASE_URL: ${DATABASE_URL}
-    depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - dhcp2p-network
-    restart: "no"
-    deploy:
-      resources:
-        limits:
-          cpus: "0.5"
-          memory: 256M
-    security_opt:
-      - no-new-privileges:true
-
   dhcp2p:
     build:
       context: .
@@ -113,9 +90,8 @@ services:
       PORT: ${PORT:-8088}
       LOG_LEVEL: ${LOG_LEVEL:-info}
 
-      # Required flags (removed - no longer needed)
-      # PASSWORD: ${PASSWORD}
-      # ACCOUNT: ${ACCOUNT}
+      # Migration control
+      RUN_MIGRATIONS: ${RUN_MIGRATIONS:-true}
 
       # Production configuration
       NONCE_TTL: ${NONCE_TTL:-5}
@@ -123,14 +99,12 @@ services:
       LEASE_TTL: ${LEASE_TTL:-120}
       MAX_LEASE_RETRIES: ${MAX_LEASE_RETRIES:-3}
       LEASE_RETRY_DELAY: ${LEASE_RETRY_DELAY:-500}
-    ports:
-      - "${PORT:-8088}:8088"
     volumes:
       - ./data:/data:rw
       - ./config:/config:ro
     depends_on:
-      dhcp2p-migrate:
-        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
       redis:
         condition: service_healthy
     networks:

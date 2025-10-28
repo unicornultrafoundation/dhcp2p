@@ -157,8 +157,7 @@ dhcp2p/
 │   └── mocks/                  # Generated mocks
 ├── scripts/                     # Utility scripts
 ├── docker-compose.yml          # Docker Compose configuration
-├── Dockerfile                  # Application Docker image
-├── Dockerfile.migrate          # Migration Docker image
+├── Dockerfile                  # Combined application and migration Docker image
 ├── Makefile                    # Build and development commands
 ├── go.mod                      # Go module definition
 ├── go.sum                      # Go module checksums

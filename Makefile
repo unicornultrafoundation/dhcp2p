@@ -6,11 +6,23 @@ COMPOSE := docker compose
 ENV_FILE ?= .env
 PROD_ENV_FILE ?= .env.prod
 
-IMAGE_NAME ?= dhcp2p
-TAG ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo latest)
+# Docker build variables
+IMAGE_NAME ?= depinnode/subnet-dhcp2p
+TAG ?= 1.0.1
+REGISTRY ?= 
+PLATFORM ?= linux/amd64
+NO_CACHE ?= false
+QUIET ?= false
+
+# Build full image name
+ifeq ($(REGISTRY),)
+    FULL_IMAGE_NAME = $(IMAGE_NAME):$(TAG)
+else
+    FULL_IMAGE_NAME = $(REGISTRY)/$(IMAGE_NAME):$(TAG)
+endif
+
 # Override IMAGE to include registry if needed, e.g. make IMAGE=ghcr.io/owner/dhcp2p:$(TAG)
-IMAGE ?= $(IMAGE_NAME):$(TAG)
-MIGRATE_IMAGE ?= $(IMAGE_NAME)-migrate:$(TAG)
+IMAGE ?= $(FULL_IMAGE_NAME)
 
 .PHONY: help
 help:
@@ -22,9 +34,25 @@ help:
 	@echo "  sqlc                 Generate sqlc code"
 	@echo "  db                   Run migrate + sqlc"
 	@echo "  setup                Run interactive project setup (.env, config)"
-	@echo "  docker-build         Build app image (Dockerfile) -> $(IMAGE)"
-	@echo "  docker-build-migrate Build migration image (Dockerfile.migrate) -> $(MIGRATE_IMAGE)"
-	@echo "  docker-push          Push app image (requires IMAGE set with registry)"
+	@echo "  docker-build         Build combined image (Dockerfile) -> $(IMAGE)"
+	@echo "  docker-build-push    Build and push image to registry"
+	@echo "  docker-push          Push image to registry (requires REGISTRY set)"
+	@echo "  docker-tag-latest    Tag current image as latest"
+	@echo "  docker-info          Show Docker build information"
+	@echo ""
+	@echo "Docker build variables:"
+	@echo "  IMAGE_NAME           Image name (default: depinnode/subnet-dhcp2p)"
+	@echo "  TAG                  Image tag/version (default: 1.0.1)"
+	@echo "  REGISTRY             Container registry (e.g., ghcr.io/username)"
+	@echo "  PLATFORM             Target platform (default: linux/amd64)"
+	@echo "  NO_CACHE             Build without cache (default: false)"
+	@echo "  QUIET                Suppress build output (default: false)"
+	@echo ""
+	@echo "Examples:"
+	@echo "  make docker-build"
+	@echo "  make docker-build-push REGISTRY=ghcr.io/username"
+	@echo "  make docker-build PLATFORM=linux/amd64,linux/arm64"
+	@echo "  make docker-build TAG=v2.0.0"
 	@echo "  docker-up            Start dev stack (docker-compose.yml)"
 	@echo "  docker-down          Stop dev stack and remove volumes"
 	@echo "  docker-logs          Follow app logs"
@@ -65,19 +93,72 @@ setup:
 	bash scripts/setup.sh -e $(ENV_FILE)
 
 # ---- Docker build/push ----
-.PHONY: docker-build docker-build-migrate docker-push docker-login
+.PHONY: docker-build docker-build-push docker-push docker-tag-latest docker-info docker-login
+
+# Build arguments
+BUILD_ARGS = --build-arg BUILD_VERSION=$(TAG)
+ifeq ($(NO_CACHE),true)
+    BUILD_ARGS += --no-cache
+endif
+ifeq ($(PLATFORM),linux/amd64)
+    # Default platform, no need to specify
+else
+    BUILD_ARGS += --platform $(PLATFORM)
+endif
+ifeq ($(QUIET),true)
+    BUILD_ARGS += --quiet
+endif
+
 docker-build:
-	docker build -f Dockerfile -t $(IMAGE) --build-arg BUILD_VERSION=$(TAG) .
-
-docker-build-migrate:
-	docker build -f Dockerfile.migrate -t $(MIGRATE_IMAGE) --build-arg BUILD_VERSION=$(TAG) .
-
-docker-push:
-	@if [ "$(findstring /,$(IMAGE))" = "" ]; then \
-		echo "ERROR: IMAGE must include registry (e.g. ghcr.io/owner/$(IMAGE_NAME):$(TAG))"; \
+	@echo "Building Docker image: $(FULL_IMAGE_NAME)"
+	@echo "Tag: $(TAG)"
+	@echo "Platform: $(PLATFORM)"
+	@echo "Build args: $(BUILD_ARGS)"
+	@if [ ! -f "Dockerfile" ]; then \
+		echo "ERROR: Dockerfile not found. Please run from project root."; \
 		exit 1; \
 	fi
-	docker push $(IMAGE)
+	@if ! docker info >/dev/null 2>&1; then \
+		echo "ERROR: Docker is not running or accessible"; \
+		exit 1; \
+	fi
+	docker build -t "$(FULL_IMAGE_NAME)" $(BUILD_ARGS) .
+	@echo "Successfully built $(FULL_IMAGE_NAME)"
+
+docker-build-push: docker-build docker-push
+	@echo "Build and push completed successfully!"
+
+docker-push:
+	@if [ -z "$(REGISTRY)" ]; then \
+		echo "ERROR: REGISTRY must be specified when pushing images"; \
+		echo "Usage: make docker-push REGISTRY=ghcr.io/username"; \
+		exit 1; \
+	fi
+	@echo "Pushing $(FULL_IMAGE_NAME)..."
+	docker push "$(FULL_IMAGE_NAME)"
+	@echo "Successfully pushed $(FULL_IMAGE_NAME)"
+
+docker-tag-latest:
+	@if [ "$(TAG)" != "latest" ]; then \
+		LATEST_IMAGE="$(FULL_IMAGE_NAME)"; \
+		LATEST_IMAGE="$${LATEST_IMAGE%:*}:latest"; \
+		echo "Tagging as latest: $$LATEST_IMAGE"; \
+		docker tag "$(FULL_IMAGE_NAME)" "$$LATEST_IMAGE"; \
+		echo "Tagged as latest: $$LATEST_IMAGE"; \
+	else \
+		echo "Image is already tagged as latest"; \
+	fi
+
+docker-info:
+	@echo "Docker Build Information:"
+	@echo "  Image Name: $(IMAGE_NAME)"
+	@echo "  Tag: $(TAG)"
+	@echo "  Registry: $(REGISTRY)"
+	@echo "  Full Image Name: $(FULL_IMAGE_NAME)"
+	@echo "  Platform: $(PLATFORM)"
+	@echo "  No Cache: $(NO_CACHE)"
+	@echo "  Quiet: $(QUIET)"
+	@echo "  Build Args: $(BUILD_ARGS)"
 
 # ---- Docker Compose (dev) ----
 .PHONY: docker-up docker-down docker-logs docker-ps docker-health
@@ -110,10 +191,11 @@ docker-down-prod:
 # ---- Migrations via container/script ----
 .PHONY: migrate-docker migrate-status
 migrate-docker:
-	bash scripts/migrate.sh --auto -e $(ENV_FILE)
+	@echo "Migrations are now handled automatically by the Docker container"
+	@echo "Set RUN_MIGRATIONS=false in environment to disable auto-migration"
 
 migrate-status:
-	bash scripts/migrate.sh --status -e $(ENV_FILE)
+	@echo "Migration status can be checked via the application health endpoint"
 
 # ---- Testing ----
 .PHONY: test test-unit test-integration test-e2e test-coverage test-mocks test-bench test-load test-contract test-security
