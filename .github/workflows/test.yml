@@ -103,7 +103,7 @@ jobs:
         MAX_LEASE_RETRIES=3
         LEASE_RETRY_DELAY=500
         BUILD_VERSION=ci
-        RUN_MIGRATIONS=false
+        RUN_MIGRATIONS=true
         EOF
     
     - name: Stop database services before starting full stack
@@ -111,7 +111,9 @@ jobs:
         docker compose --env-file .env down
         
     - name: Start application for e2e tests
-      run: make docker-up
+      run: |
+        # Use CI override to expose port for e2e tests
+        docker compose --env-file .env -f docker-compose.yml -f docker-compose.ci.yml up -d --build
     
     - name: Check container status and logs
       run: |
@@ -131,7 +133,7 @@ jobs:
       run: |
         echo "Waiting for database migration to complete..."
         for i in {1..30}; do
-          if docker logs dhcp2p-migrate 2>&1 | grep -q "Migrations completed successfully\|No migrations to run"; then
+          if docker logs dhcp2p-app 2>&1 | grep -q "Migrations completed successfully\|No migrations to run"; then
             echo "Database migration completed!"
             break
           else
@@ -140,8 +142,8 @@ jobs:
           fi
         done
         
-        echo "=== Migration Container Logs ==="
-        docker logs dhcp2p-migrate
+        echo "=== Application Container Logs (including migration) ==="
+        docker logs dhcp2p-app
         
     - name: Wait for application to be ready (with extended timeout)
       run: |
