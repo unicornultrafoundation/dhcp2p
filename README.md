@@ -5,7 +5,7 @@
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![codecov](https://codecov.io/gh/unicornultrafoundation/dhcp2p/branch/main/graph/badge.svg)](https://codecov.io/gh/unicornultrafoundation/dhcp2p)
 
-A decentralized IP lease management service that provides token-based IP allocation with libp2p authentication. DHCP2P enables secure, peer-to-peer IP address management through cryptographic signatures and nonce-based authentication.
+An IP lease management service that provides token-based IP allocation with libp2p authentication. DHCP2P enables secure, peer-to-peer IP address management through cryptographic signatures and nonce-based authentication.
 
 ## 🚀 Key Features
 
