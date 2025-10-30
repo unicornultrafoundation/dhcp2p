@@ -1,0 +1,8 @@
+# Ignore actual secrets - use secret.yaml.example as template
+secret.yaml
+*.secret.yaml
+
+# Ignore any local overrides
+*override*.yaml
+*local*.yaml
+

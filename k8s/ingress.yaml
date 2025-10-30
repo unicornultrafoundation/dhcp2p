@@ -1,0 +1,42 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: dhcp2p-ingress
+  namespace: dhcp2p
+  labels:
+    app: dhcp2p
+  annotations:
+    # Nginx Ingress Controller annotations
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+    # Rate limiting
+    nginx.ingress.kubernetes.io/limit-rps: "100"
+    # Health check endpoint
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      location ~ ^/health {
+        access_log off;
+      }
+spec:
+  ingressClassName: nginx  # Change to your ingress class
+  # TLS Configuration (uncomment and configure)
+  # tls:
+  # - hosts:
+  #   - dhcp2p.example.com
+  #   secretName: dhcp2p-tls
+  rules:
+  - host: dhcp2p.example.com  # Change to your domain
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: dhcp2p-service
+            port:
+              number: 8088
+

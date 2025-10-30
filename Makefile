@@ -62,6 +62,14 @@ help:
 	@echo "  docker-down-prod     Stop prod stack and remove volumes"
 	@echo "  migrate-docker       Run DB migrations in container"
 	@echo "  migrate-status       Show migration status"
+	@echo ""
+	@echo "Kubernetes deployment:"
+	@echo "  k8s-deploy           Deploy to Kubernetes (requires kubectl)"
+	@echo "  k8s-delete           Delete Kubernetes deployment"
+	@echo "  k8s-status           Show Kubernetes deployment status"
+	@echo "  k8s-logs             Show application logs from Kubernetes"
+	@echo "  k8s-secret           Create/update Kubernetes secrets"
+	@echo ""
 	@echo "  test                 Run all tests"
 	@echo "  test-unit            Run unit tests only"
 	@echo "  test-integration     Run integration tests only"
@@ -129,11 +137,6 @@ docker-build-push: docker-build docker-push
 	@echo "Build and push completed successfully!"
 
 docker-push:
-	@if [ -z "$(REGISTRY)" ]; then \
-		echo "ERROR: REGISTRY must be specified when pushing images"; \
-		echo "Usage: make docker-push REGISTRY=ghcr.io/username"; \
-		exit 1; \
-	fi
 	@echo "Pushing $(FULL_IMAGE_NAME)..."
 	docker push "$(FULL_IMAGE_NAME)"
 	@echo "Successfully pushed $(FULL_IMAGE_NAME)"
@@ -275,3 +278,79 @@ test-clean:
 	rm -f coverage*.out coverage*.html
 	rm -f test.log
 	go clean -testcache
+
+# ---- Kubernetes deployment ----
+.PHONY: k8s-deploy k8s-delete k8s-status k8s-logs k8s-secret k8s-update-image
+K8S_NAMESPACE ?= dhcp2p
+K8S_DIR ?= k8s
+
+k8s-deploy:
+	@echo "Deploying to Kubernetes namespace: $(K8S_NAMESPACE)"
+	@if ! kubectl get namespace $(K8S_NAMESPACE) >/dev/null 2>&1; then \
+		echo "Creating namespace..."; \
+		kubectl apply -f $(K8S_DIR)/namespace.yaml; \
+	fi
+	@echo "Applying ConfigMap..."
+	@kubectl apply -f $(K8S_DIR)/configmap.yaml -n $(K8S_NAMESPACE)
+	@if [ ! -f "$(K8S_DIR)/secret.yaml" ]; then \
+		echo "ERROR: secret.yaml not found. Please create it from secret.yaml.example"; \
+		echo "  cp $(K8S_DIR)/secret.yaml.example $(K8S_DIR)/secret.yaml"; \
+		echo "  # Edit $(K8S_DIR)/secret.yaml with your actual secrets"; \
+		exit 1; \
+	fi
+	@echo "Applying Secrets..."
+	@kubectl apply -f $(K8S_DIR)/secret.yaml -n $(K8S_NAMESPACE)
+	@echo "Applying Deployment..."
+	@kubectl apply -f $(K8S_DIR)/deployment.yaml -n $(K8S_NAMESPACE)
+	@echo "Applying Service..."
+	@kubectl apply -f $(K8S_DIR)/service.yaml -n $(K8S_NAMESPACE)
+	@echo "Waiting for deployment to be ready..."
+	@kubectl wait --for=condition=available --timeout=300s deployment/dhcp2p -n $(K8S_NAMESPACE) || true
+	@echo "Deployment completed!"
+
+k8s-delete:
+	@echo "Deleting Kubernetes deployment from namespace: $(K8S_NAMESPACE)"
+	@kubectl delete deployment dhcp2p -n $(K8S_NAMESPACE) || true
+	@kubectl delete service dhcp2p-service -n $(K8S_NAMESPACE) || true
+	@kubectl delete configmap dhcp2p-config -n $(K8S_NAMESPACE) || true
+	@kubectl delete secret dhcp2p-secrets -n $(K8S_NAMESPACE) || true
+	@echo "Deployment deleted!"
+
+k8s-status:
+	@echo "Kubernetes Deployment Status:"
+	@echo "=============================="
+	@kubectl get all -n $(K8S_NAMESPACE) -l app=dhcp2p
+	@echo ""
+	@echo "Pods:"
+	@kubectl get pods -n $(K8S_NAMESPACE) -l app=dhcp2p
+	@echo ""
+	@echo "Recent events:"
+	@kubectl get events -n $(K8S_NAMESPACE) --sort-by='.lastTimestamp' | tail -10 || true
+
+k8s-logs:
+	@kubectl logs -f deployment/dhcp2p -n $(K8S_NAMESPACE) || kubectl logs -f -l app=dhcp2p -n $(K8S_NAMESPACE)
+
+k8s-secret:
+	@echo "Creating/updating Kubernetes secret..."
+	@echo ""
+	@echo "Example usage:"
+	@echo "  kubectl create secret generic dhcp2p-secrets \\"
+	@echo "    --from-literal=DATABASE_URL='postgres://user:pass@host:5432/db?sslmode=require' \\"
+	@echo "    --from-literal=REDIS_URL='redis-service:6379' \\"
+	@echo "    --from-literal=REDIS_PASSWORD='your-password' \\"
+	@echo "    -n $(K8S_NAMESPACE)"
+	@echo ""
+	@echo "Or create from file:"
+	@echo "  cp $(K8S_DIR)/secret.yaml.example $(K8S_DIR)/secret.yaml"
+	@echo "  # Edit $(K8S_DIR)/secret.yaml with your secrets"
+	@echo "  kubectl apply -f $(K8S_DIR)/secret.yaml"
+
+k8s-update-image:
+	@if [ -z "$(IMAGE)" ]; then \
+		echo "ERROR: IMAGE must be specified"; \
+		echo "Usage: make k8s-update-image IMAGE=your-registry/dhcp2p:v1.0.0"; \
+		exit 1; \
+	fi
+	@echo "Updating deployment image to: $(IMAGE)"
+	@kubectl set image deployment/dhcp2p dhcp2p=$(IMAGE) -n $(K8S_NAMESPACE)
+	@echo "Image updated. Deployment will rollout automatically."

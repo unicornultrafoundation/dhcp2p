@@ -1,0 +1,148 @@
+---
+# Redis StatefulSet (Optional - Use managed cache in production)
+apiVersion: v1
+kind: Secret
+metadata:
+  name: redis-secret
+  namespace: dhcp2p
+  labels:
+    app: redis
+type: Opaque
+stringData:
+  REDIS_PASSWORD: "CHANGE_ME"  # Change this!
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redis-config
+  namespace: dhcp2p
+  labels:
+    app: redis
+data:
+  redis.conf: |
+    appendonly yes
+    appendfsync everysec
+    save 900 1
+    save 300 10
+    save 60 10000
+    maxmemory 512mb
+    maxmemory-policy allkeys-lru
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: redis-pvc
+  namespace: dhcp2p
+  labels:
+    app: redis
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: standard  # Change to your storage class
+  resources:
+    requests:
+      storage: 10Gi
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: redis
+  namespace: dhcp2p
+  labels:
+    app: redis
+spec:
+  serviceName: redis-service
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      securityContext:
+        fsGroup: 999
+      containers:
+      - name: redis
+        image: redis:7-alpine
+        command:
+        - redis-server
+        - /etc/redis/redis.conf
+        - --requirepass
+        - $(REDIS_PASSWORD)
+        ports:
+        - containerPort: 6379
+          name: redis
+        env:
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: redis-secret
+              key: REDIS_PASSWORD
+        volumeMounts:
+        - name: redis-config
+          mountPath: /etc/redis
+        - name: redis-storage
+          mountPath: /data
+        resources:
+          requests:
+            cpu: "250m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+        livenessProbe:
+          exec:
+            command:
+            - redis-cli
+            - -a
+            - $(REDIS_PASSWORD)
+            - ping
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+        readinessProbe:
+          exec:
+            command:
+            - redis-cli
+            - -a
+            - $(REDIS_PASSWORD)
+            - ping
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+      volumes:
+      - name: redis-config
+        configMap:
+          name: redis-config
+  volumeClaimTemplates:
+  - metadata:
+      name: redis-storage
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: standard  # Change to your storage class
+      resources:
+        requests:
+          storage: 10Gi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-service
+  namespace: dhcp2p
+  labels:
+    app: redis
+spec:
+  clusterIP: None  # Headless service for StatefulSet
+  ports:
+  - port: 6379
+    targetPort: 6379
+    name: redis
+  selector:
+    app: redis
+

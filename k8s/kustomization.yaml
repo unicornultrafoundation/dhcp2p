@@ -1,0 +1,33 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: dhcp2p
+
+resources:
+  - namespace.yaml
+  - configmap.yaml
+  - secret.yaml  # Create from secret.yaml.example first!
+  - deployment.yaml
+  - service.yaml
+  # Optional resources - uncomment if needed
+  # - ingress.yaml
+  # - hpa.yaml
+  # - postgres-statefulset.yaml
+  # - redis-statefulset.yaml
+
+# Common labels
+commonLabels:
+  app: dhcp2p
+  managed-by: kustomize
+
+# Image customization example (uncomment and modify)
+# images:
+#   - name: dhcp2p
+#     newName: your-registry/dhcp2p
+#     newTag: v1.0.0
+
+# Replicas customization example (uncomment to override)
+# replicas:
+#   - name: dhcp2p
+#     count: 3
+

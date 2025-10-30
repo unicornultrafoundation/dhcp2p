@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: dhcp2p-service
+  namespace: dhcp2p
+  labels:
+    app: dhcp2p
+spec:
+  type: ClusterIP  # Use LoadBalancer or NodePort for external access
+  ports:
+  - name: http
+    port: 8088
+    targetPort: http
+    protocol: TCP
+  selector:
+    app: dhcp2p
+  sessionAffinity: None
+
